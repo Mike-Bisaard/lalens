@@ -66,33 +66,35 @@ export async function POST(req: NextRequest) {
     .insert({ id: batchId, shop_id: shop.id, original_image_url: originalImageUrl })
   if (batchErr) return NextResponse.json({ error: 'batch_failed', detail: batchErr.message }, { status: 500 })
 
-  // Upload each card crop + build insert rows
-  const rows: object[] = []
-  for (const card of cards) {
-    const base64 = card.imageDataUrl.split(',')[1]
-    const buf    = Buffer.from(base64, 'base64')
-    const path   = `${batchId}/${card.index}.jpg`
+  // Upload all card crops in parallel (was sequential — O(n) round-trips)
+  const uploadResults = await Promise.all(
+    cards.map(async (card) => {
+      const base64 = card.imageDataUrl.split(',')[1]
+      const buf    = Buffer.from(base64, 'base64')
+      const path   = `${batchId}/${card.index}.jpg`
 
-    const { error: uploadErr } = await storage
-      .from(BUCKET)
-      .upload(path, buf, { contentType: 'image/jpeg', upsert: true })
-    if (uploadErr) continue
+      const { error: uploadErr } = await storage
+        .from(BUCKET)
+        .upload(path, buf, { contentType: 'image/jpeg', upsert: true })
+      if (uploadErr) return null
 
-    const { data: { publicUrl } } = storage.from(BUCKET).getPublicUrl(path)
-    const priceSatang = Math.round(parseFloat(card.price || '0') * 100)
+      const { data: { publicUrl } } = storage.from(BUCKET).getPublicUrl(path)
+      const priceSatang = Math.round(parseFloat(card.price || '0') * 100)
 
-    rows.push({
-      batch_id:    batchId,
-      shop_id:     shop.id,
-      name:        card.name ?? '',
-      image_url:   publicUrl,
-      crop_coords: card.cropCoords,
-      price:       priceSatang,
-      condition:   card.condition ?? 'NM',
-      sort_order:  card.index,
+      return {
+        batch_id:    batchId,
+        shop_id:     shop.id,
+        name:        card.name ?? '',
+        image_url:   publicUrl,
+        crop_coords: card.cropCoords,
+        price:       priceSatang,
+        condition:   card.condition ?? 'NM',
+        sort_order:  card.index,
+      }
     })
-  }
+  )
 
+  const rows = uploadResults.filter((r): r is NonNullable<typeof r> => r !== null)
   if (!rows.length) return NextResponse.json({ error: 'all_uploads_failed' }, { status: 500 })
 
   const { error: cardsErr } = await supabase.from('cards').insert(rows)
