@@ -42,6 +42,11 @@ export async function PATCH(
     if (isNaN(p) || p < 0) return NextResponse.json({ error: 'invalid_price' }, { status: 400 })
     updates.price = p
   }
+  if (body.quantity !== undefined) {
+    const q = parseInt(body.quantity)
+    if (isNaN(q) || q < 1) return NextResponse.json({ error: 'invalid_quantity' }, { status: 400 })
+    updates.quantity = q
+  }
 
   if (!Object.keys(updates).length) return NextResponse.json({ error: 'nothing_to_update' }, { status: 400 })
 

@@ -33,6 +33,7 @@ export interface Card {
   price: number
   condition: CardCondition
   status: CardStatus
+  quantity: number
   sort_order: number
   created_at: string
 }
