@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Brand gradient (violet → fuchsia) */
+  --color-brand-start: #7c3aed;
+  --color-brand-end:   #c026d3;
+
+  /* Surfaces */
+  --color-surface:        #09090f;
+  --color-surface-raised: #18181b;
+
+  /* Borders */
+  --color-border:       #27272a;
+  --color-border-input: #3f3f46;
+
+  /* Status */
+  --color-status-available: #10b981;
+  --color-status-reserved:  #f59e0b;
+  --color-status-sold:      #6b7280;
+}

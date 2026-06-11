@@ -1,0 +1,175 @@
+/**
+ * Integration tests for lib/cv/crop.ts — runs via: npm run test:cv
+ * Uses plain Node.js ESM (no vitest) to avoid WASM init issues.
+ */
+import sharp from 'sharp'
+
+// crop.ts compiled to ESM by: npm run build:cv (esbuild --format=esm)
+// This avoids the tsx/CJS WASM deadlock — ESM keeps dynamic import() async.
+import { fileURLToPath } from 'url'
+import path from 'path'
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const { detectAndCropCards, cropCardManual } = await import(path.resolve(__dirname, '../crop.compiled.mjs'))
+
+// ── Test runner ───────────────────────────────────────────────────────────────
+let passed = 0; let failed = 0
+
+async function test(name, fn) {
+  try {
+    await fn()
+    console.log(`  ✓ ${name}`)
+    passed++
+  } catch (e) {
+    console.log(`  ✗ ${name}`)
+    console.log(`    ${e.message}`)
+    failed++
+  }
+}
+
+function expect(val) {
+  return {
+    toBe: (expected) => { if (val !== expected) throw new Error(`Expected ${expected}, got ${val}`) },
+    toHaveLength: (n) => { if (val.length !== n) throw new Error(`Expected length ${n}, got ${val.length}`) },
+    toBeGreaterThanOrEqual: (n) => { if (val < n) throw new Error(`Expected >= ${n}, got ${val}`) },
+    toBeLessThan: (n) => { if (val >= n) throw new Error(`Expected < ${n}, got ${val}`) },
+    toBeLessThanOrEqual: (n) => { if (val > n) throw new Error(`Expected <= ${n}, got ${val}`) },
+    toBeInstanceOf: (cls) => { if (!(val instanceof cls)) throw new Error(`Expected instanceof ${cls.name}`) },
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const CARD_OUT_W = 252
+const CARD_OUT_H = 352
+
+async function makeTestImage(imageW, imageH, cards) {
+  const rects = cards.map(c =>
+    `<rect x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" fill="white"/>`
+  ).join('\n')
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${imageW}" height="${imageH}">
+    <rect width="${imageW}" height="${imageH}" fill="#111111"/>
+    ${rects}
+  </svg>`
+  return sharp(Buffer.from(svg)).png().toBuffer()
+}
+
+async function makeTiltedCardImage(imageW, imageH, cx, cy, cardW, cardH, angleDeg) {
+  const rad = (angleDeg * Math.PI) / 180
+  const cos = Math.cos(rad); const sin = Math.sin(rad)
+  const hw = cardW / 2; const hh = cardH / 2
+  const local = [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]]
+  const pts = local.map(([x, y]) => `${cx + x * cos - y * sin},${cy + x * sin + y * cos}`).join(' ')
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${imageW}" height="${imageH}">
+    <rect width="${imageW}" height="${imageH}" fill="#111111"/>
+    <polygon points="${pts}" fill="white"/>
+  </svg>`
+  return sharp(Buffer.from(svg)).png().toBuffer()
+}
+
+// ── Tests ─────────────────────────────────────────────────────────────────────
+console.log('\ndetectAndCropCards (integration)')
+
+await test('detects zero cards in a plain dark image', async () => {
+  const img = await sharp({ create: { width: 800, height: 600, channels: 3, background: { r: 20, g: 20, b: 20 } } }).png().toBuffer()
+  const cards = await detectAndCropCards(img)
+  expect(cards).toHaveLength(0)
+})
+
+await test('detects a single flat card — output size CARD_OUT_W × CARD_OUT_H', async () => {
+  const img = await makeTestImage(800, 600, [{ x: 275, y: 125, w: 250, h: 350 }])
+  const cards = await detectAndCropCards(img)
+  expect(cards.length).toBeGreaterThanOrEqual(1)
+  const meta = await sharp(cards[0].cropBuffer).metadata()
+  expect(meta.width).toBe(CARD_OUT_W)
+  expect(meta.height).toBe(CARD_OUT_H)
+})
+
+await test('upright card has angle ≈ 0', async () => {
+  const img = await makeTestImage(800, 600, [{ x: 275, y: 125, w: 250, h: 350 }])
+  const cards = await detectAndCropCards(img)
+  expect(cards.length).toBeGreaterThanOrEqual(1)
+  expect(Math.abs(cards[0].angle)).toBeLessThan(5)
+})
+
+await test('detects a card tilted +15°', async () => {
+  const img = await makeTiltedCardImage(900, 700, 450, 350, 220, 308, 15)
+  const cards = await detectAndCropCards(img)
+  expect(cards.length).toBeGreaterThanOrEqual(1)
+  const meta = await sharp(cards[0].cropBuffer).metadata()
+  expect(meta.width).toBe(CARD_OUT_W)
+  expect(meta.height).toBe(CARD_OUT_H)
+})
+
+await test('detects a card tilted -15°', async () => {
+  const img = await makeTiltedCardImage(900, 700, 450, 350, 220, 308, -15)
+  const cards = await detectAndCropCards(img)
+  expect(cards.length).toBeGreaterThanOrEqual(1)
+  const meta = await sharp(cards[0].cropBuffer).metadata()
+  expect(meta.width).toBe(CARD_OUT_W)
+  expect(meta.height).toBe(CARD_OUT_H)
+})
+
+await test('multiple cards sorted row-major (left→right)', async () => {
+  const img = await makeTestImage(1200, 600, [
+    { x: 50, y: 100, w: 220, h: 308 },
+    { x: 490, y: 100, w: 220, h: 308 },
+    { x: 930, y: 100, w: 220, h: 308 },
+  ])
+  const cards = await detectAndCropCards(img)
+  expect(cards.length).toBeGreaterThanOrEqual(2)
+  for (let i = 1; i < cards.length; i++) {
+    expect(cards[i].x).toBeGreaterThanOrEqual(cards[i - 1].x)
+  }
+})
+
+await test('each cropBuffer is a valid JPEG', async () => {
+  const img = await makeTestImage(800, 600, [{ x: 275, y: 125, w: 220, h: 308 }])
+  const cards = await detectAndCropCards(img)
+  for (const card of cards) {
+    expect(card.cropBuffer).toBeInstanceOf(Buffer)
+    const meta = await sharp(card.cropBuffer).metadata()
+    expect(meta.format).toBe('jpeg')
+  }
+})
+
+await test('bounding box fits within original image', async () => {
+  const W = 800; const H = 600
+  const img = await makeTestImage(W, H, [{ x: 275, y: 125, w: 220, h: 308 }])
+  const cards = await detectAndCropCards(img)
+  for (const card of cards) {
+    expect(card.x).toBeGreaterThanOrEqual(0)
+    expect(card.y).toBeGreaterThanOrEqual(0)
+    expect(card.x + card.w).toBeLessThanOrEqual(W)
+    expect(card.y + card.h).toBeLessThanOrEqual(H)
+  }
+})
+
+await test('every card has exactly 4 corners', async () => {
+  const img = await makeTestImage(800, 600, [{ x: 275, y: 125, w: 220, h: 308 }])
+  const cards = await detectAndCropCards(img)
+  for (const card of cards) {
+    expect(card.corners).toHaveLength(4)
+  }
+})
+
+await test('index values are sequential from 0', async () => {
+  const img = await makeTestImage(1200, 600, [
+    { x: 50, y: 100, w: 220, h: 308 },
+    { x: 490, y: 100, w: 220, h: 308 },
+  ])
+  const cards = await detectAndCropCards(img)
+  cards.forEach((c, i) => expect(c.index).toBe(i))
+})
+
+console.log('\ncropCardManual')
+
+await test('returns correct region size', async () => {
+  const img = await sharp({ create: { width: 800, height: 600, channels: 3, background: { r: 200, g: 100, b: 50 } } }).png().toBuffer()
+  const cropped = await cropCardManual(img, 10, 20, 100, 150)
+  const meta = await sharp(cropped).metadata()
+  expect(meta.width).toBe(100)
+  expect(meta.height).toBe(150)
+})
+
+// ── Summary ───────────────────────────────────────────────────────────────────
+console.log(`\n  ${passed} passed, ${failed} failed\n`)
+if (failed > 0) process.exit(1)

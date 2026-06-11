@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lalens — ขายการ์ดสะสมง่ายขึ้น 10 เท่า</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #09090f;
+      --bg2: #0f0f1a;
+      --bg3: #141426;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text: #f0f0ff;
+      --text-muted: #7c7c9e;
+      --text-dim: #4a4a6a;
+      --accent: #7c6af0;
+      --accent2: #c26af0;
+      --accent3: #6af0c2;
+      --glow: rgba(124,106,240,0.35);
+      --glow2: rgba(194,106,240,0.2);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* NOISE OVERLAY */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 5%;
+      background: rgba(9,9,15,0.75);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #7c6af0, #c26af0);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { color: var(--text-muted); font-size: 14px; font-weight: 500; text-decoration: none; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      display: flex; gap: 12px; align-items: center;
+    }
+    .btn-ghost {
+      padding: 9px 20px; border-radius: 10px; font-size: 14px; font-weight: 600;
+      color: var(--text-muted); background: transparent;
+      border: 1px solid var(--border); cursor: pointer; text-decoration: none;
+      transition: all .2s;
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--border-hover); }
+    .btn-primary {
+      padding: 9px 22px; border-radius: 10px; font-size: 14px; font-weight: 600;
+      color: #fff; background: linear-gradient(135deg, #7c6af0, #c26af0);
+      border: none; cursor: pointer; text-decoration: none;
+      box-shadow: 0 0 24px var(--glow);
+      transition: all .25s; white-space: nowrap;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 36px var(--glow); }
+
+    /* HERO */
+    .hero {
+      position: relative; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 120px 5% 80px; text-align: center;
+      overflow: hidden;
+    }
+    .hero-glow {
+      position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
+      width: 700px; height: 400px;
+      background: radial-gradient(ellipse, rgba(124,106,240,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-glow2 {
+      position: absolute; top: 40%; left: 30%;
+      width: 400px; height: 300px;
+      background: radial-gradient(ellipse, rgba(194,106,240,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 16px; border-radius: 100px;
+      background: rgba(124,106,240,0.12);
+      border: 1px solid rgba(124,106,240,0.3);
+      font-size: 13px; font-weight: 600; color: #a89af5;
+      margin-bottom: 28px;
+    }
+    .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: #7c6af0; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+    h1 {
+      font-size: clamp(42px, 7vw, 80px);
+      font-weight: 900; letter-spacing: -2px; line-height: 1.08;
+      max-width: 800px; margin-bottom: 24px;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #7c6af0 0%, #c26af0 50%, #f06a9e 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      font-size: 18px; color: var(--text-muted); max-width: 520px;
+      margin-bottom: 40px; line-height: 1.7;
+    }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+    .btn-large {
+      padding: 16px 36px; border-radius: 14px; font-size: 16px; font-weight: 700;
+      color: #fff; background: linear-gradient(135deg, #7c6af0, #c26af0);
+      border: none; cursor: pointer; text-decoration: none;
+      box-shadow: 0 0 40px var(--glow);
+      transition: all .25s;
+    }
+    .btn-large:hover { transform: translateY(-2px); box-shadow: 0 0 60px var(--glow); }
+    .btn-large-ghost {
+      padding: 16px 36px; border-radius: 14px; font-size: 16px; font-weight: 700;
+      color: var(--text); background: transparent;
+      border: 1px solid var(--border-hover); cursor: pointer; text-decoration: none;
+      transition: all .25s;
+    }
+    .btn-large-ghost:hover { background: rgba(255,255,255,0.04); }
+
+    /* HERO MOCKUP */
+    .hero-visual {
+      margin-top: 72px; width: 100%; max-width: 860px;
+      position: relative;
+    }
+    .mockup-window {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 20px; overflow: hidden;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.6), 0 0 60px rgba(124,106,240,0.12);
+    }
+    .mockup-bar {
+      background: var(--bg3); padding: 14px 20px;
+      display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
+    .mockup-url {
+      margin-left: 12px; flex: 1; background: rgba(255,255,255,0.06);
+      border-radius: 6px; padding: 5px 14px; font-size: 12px; color: var(--text-dim);
+      max-width: 280px;
+    }
+    .mockup-body { padding: 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    /* CARD GRID in mockup */
+    .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .card-item {
+      aspect-ratio: 2/3; border-radius: 10px; overflow: hidden; position: relative;
+      background: linear-gradient(135deg, var(--bg3), rgba(124,106,240,0.15));
+      border: 1px solid var(--border); cursor: pointer; transition: all .2s;
+    }
+    .card-item:hover { border-color: var(--accent); transform: scale(1.03); }
+    .card-item.selected { border-color: var(--accent); box-shadow: 0 0 16px var(--glow); }
+    .card-check {
+      position: absolute; top: 6px; right: 6px; width: 20px; height: 20px;
+      background: var(--accent); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 11px;
+    }
+    .card-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; padding: 12px;
+    }
+    .card-icon { font-size: 28px; }
+    .card-name { font-size: 9px; color: var(--text-muted); text-align: center; font-weight: 600; }
+    .card-price { font-size: 11px; color: var(--accent3); font-weight: 700; }
+
+    .mockup-sidebar { display: flex; flex-direction: column; gap: 14px; }
+    .sidebar-title { font-size: 13px; font-weight: 700; color: var(--text); }
+    .order-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .order-thumb {
+      width: 36px; height: 52px; border-radius: 6px; flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(124,106,240,0.4), rgba(194,106,240,0.3));
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .order-info { flex: 1; }
+    .order-name { font-size: 11px; font-weight: 600; color: var(--text); }
+    .order-detail { font-size: 10px; color: var(--text-muted); }
+    .order-price { font-size: 13px; font-weight: 700; color: var(--accent3); }
+    .checkout-btn {
+      width: 100%; padding: 12px; background: linear-gradient(135deg, #7c6af0, #c26af0);
+      border: none; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+
+    /* STATS */
+    .stats { padding: 16px 5% 80px; }
+    .stats-inner {
+      display: flex; justify-content: center; gap: 0; flex-wrap: wrap;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .stat-item {
+      flex: 1; min-width: 180px; padding: 36px 24px; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-size: 36px; font-weight: 900; letter-spacing: -1px;
+      background: linear-gradient(135deg, #7c6af0, #c26af0);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .stat-label { font-size: 13px; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
+
+    /* SECTION COMMON */
+    section { position: relative; padding: 96px 5%; }
+    .section-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 14px; border-radius: 100px;
+      background: rgba(124,106,240,0.1);
+      border: 1px solid rgba(124,106,240,0.25);
+      font-size: 12px; font-weight: 600; color: #a89af5;
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 48px); font-weight: 800;
+      letter-spacing: -1.5px; line-height: 1.15; margin-bottom: 16px;
+    }
+    .section-sub { font-size: 17px; color: var(--text-muted); max-width: 520px; line-height: 1.7; }
+
+    /* PROBLEM SECTION */
+    .problem-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+      align-items: center; margin-top: 64px;
+    }
+    .problem-list { display: flex; flex-direction: column; gap: 16px; }
+    .problem-item {
+      display: flex; gap: 16px; padding: 20px;
+      background: rgba(255,80,80,0.04); border: 1px solid rgba(255,80,80,0.12);
+      border-radius: var(--radius-sm);
+    }
+    .problem-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+    .problem-text h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .problem-text p { font-size: 13px; color: var(--text-muted); }
+    .solution-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 36px; position: relative; overflow: hidden;
+    }
+    .solution-card::before {
+      content: ''; position: absolute; top: -60px; right: -60px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(124,106,240,0.2), transparent 70%);
+    }
+    .solution-steps { display: flex; flex-direction: column; gap: 20px; margin-top: 24px; }
+    .step-row { display: flex; gap: 16px; align-items: flex-start; }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, #7c6af0, #c26af0);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+    }
+    .step-info h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .step-info p { font-size: 13px; color: var(--text-muted); }
+
+    /* FEATURES */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+      margin-top: 64px;
+    }
+    .feature-card {
+      padding: 28px; background: var(--bg2);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      transition: all .25s; position: relative; overflow: hidden;
+    }
+    .feature-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(124,106,240,0.06), transparent);
+      opacity: 0; transition: opacity .25s;
+    }
+    .feature-card:hover { border-color: var(--border-hover); transform: translateY(-3px); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px; margin-bottom: 20px;
+      background: linear-gradient(135deg, rgba(124,106,240,0.2), rgba(194,106,240,0.2));
+      border: 1px solid rgba(124,106,240,0.25);
+      display: flex; align-items: center; justify-content: center; font-size: 22px;
+    }
+    .feature-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+    .feature-card p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+    /* HOW IT WORKS */
+    .how-section { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .how-tabs { display: flex; gap: 8px; margin: 40px 0 56px; }
+    .tab-btn {
+      padding: 10px 24px; border-radius: 100px; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: 1px solid var(--border); background: transparent;
+      color: var(--text-muted); transition: all .2s;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #7c6af0, #c26af0);
+      color: #fff; border-color: transparent;
+    }
+    .how-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; position: relative; }
+    .how-steps::before {
+      content: ''; position: absolute; top: 32px; left: calc(16.6% + 12px); right: calc(16.6% + 12px);
+      height: 1px; background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+    }
+    .how-step { text-align: center; padding: 0 16px; }
+    .how-step-num {
+      width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 24px;
+      background: linear-gradient(135deg, #7c6af0, #c26af0);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 900; position: relative; z-index: 1;
+      box-shadow: 0 0 24px var(--glow);
+    }
+    .how-step h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .how-step p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+    .how-visual-demo {
+      margin-top: 64px; background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px; display: grid;
+      grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+    }
+    .demo-phone {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 20px; overflow: hidden; max-width: 280px; margin: auto;
+    }
+    .demo-phone-bar {
+      background: rgba(255,255,255,0.04); height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: var(--text-dim); border-bottom: 1px solid var(--border);
+    }
+    .demo-phone-body { padding: 20px; }
+    .upload-area {
+      border: 2px dashed rgba(124,106,240,0.4); border-radius: 14px; padding: 24px;
+      text-align: center; margin-bottom: 16px;
+    }
+    .upload-area-icon { font-size: 36px; margin-bottom: 12px; }
+    .upload-area-text { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+    .upload-btn {
+      width: 100%; padding: 12px; background: linear-gradient(135deg, #7c6af0, #c26af0);
+      border: none; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 700;
+    }
+    .demo-info { }
+    .demo-info h3 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 16px; }
+    .demo-info p { font-size: 15px; color: var(--text-muted); line-height: 1.8; margin-bottom: 24px; }
+    .demo-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 600;
+      background: rgba(124,106,240,0.1); border: 1px solid rgba(124,106,240,0.25);
+      color: #a89af5;
+    }
+
+    /* BUYER EXPERIENCE */
+    .buyer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; margin-top: 64px; }
+    .buyer-features { display: flex; flex-direction: column; gap: 24px; }
+    .buyer-feature {
+      display: flex; gap: 16px; padding: 20px;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      transition: all .2s;
+    }
+    .buyer-feature:hover { border-color: var(--border-hover); }
+    .buyer-icon {
+      width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(106,240,194,0.15), rgba(106,194,240,0.15));
+      border: 1px solid rgba(106,240,194,0.2);
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .buyer-text h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .buyer-text p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+    .buyer-phone {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 24px; overflow: hidden;
+    }
+    .bp-header {
+      background: var(--bg3); padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .bp-shopname { font-size: 14px; font-weight: 700; }
+    .bp-badge {
+      font-size: 11px; padding: 3px 10px; border-radius: 100px;
+      background: rgba(106,240,194,0.15); color: var(--accent3); font-weight: 600;
+    }
+    .bp-body { padding: 16px; }
+    .bp-post-img {
+      width: 100%; aspect-ratio: 4/3; border-radius: 12px;
+      background: linear-gradient(135deg, var(--bg3), rgba(124,106,240,0.2));
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr); gap: 4px; padding: 8px;
+      margin-bottom: 12px; overflow: hidden;
+    }
+    .bp-card {
+      border-radius: 8px; background: linear-gradient(135deg, rgba(124,106,240,0.3), rgba(194,106,240,0.2));
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: 18px; position: relative; cursor: pointer; transition: all .2s;
+      border: 1px solid transparent;
+    }
+    .bp-card.sel { border-color: var(--accent3); box-shadow: 0 0 10px rgba(106,240,194,0.3); }
+    .bp-card .sel-dot {
+      position: absolute; top: 4px; right: 4px; width: 14px; height: 14px;
+      background: var(--accent3); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 8px; color: #000;
+    }
+    .bp-cart { display: flex; flex-direction: column; gap: 8px; }
+    .bp-cart-item {
+      display: flex; justify-content: space-between; align-items: center; padding: 8px 12px;
+      background: rgba(255,255,255,0.04); border-radius: 8px; border: 1px solid var(--border);
+    }
+    .bp-cart-name { font-size: 11px; font-weight: 600; }
+    .bp-cart-price { font-size: 12px; color: var(--accent3); font-weight: 700; }
+    .bp-checkout-btn {
+      width: 100%; margin-top: 10px; padding: 12px;
+      background: linear-gradient(135deg, #7c6af0, #c26af0);
+      border: none; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 700;
+    }
+
+    /* TESTIMONIALS */
+    .testimonials { text-align: center; }
+    .testimonials .section-title, .testimonials .section-sub { margin: 0 auto; }
+    .testimonials .section-sub { margin-bottom: 0; }
+    .testimonials-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+      margin-top: 56px;
+    }
+    .testi-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px; text-align: left;
+      transition: all .25s;
+    }
+    .testi-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+    .testi-stars { color: #f59e0b; font-size: 14px; margin-bottom: 14px; letter-spacing: 2px; }
+    .testi-text { font-size: 14px; color: var(--text-muted); line-height: 1.8; margin-bottom: 20px; }
+    .testi-text strong { color: var(--text); }
+    .testi-user { display: flex; gap: 12px; align-items: center; }
+    .testi-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #7c6af0, #c26af0);
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .testi-name { font-size: 14px; font-weight: 700; }
+    .testi-role { font-size: 12px; color: var(--text-muted); }
+
+    /* PRICING */
+    .pricing { text-align: center; }
+    .pricing .section-sub { margin: 0 auto; }
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+      margin-top: 56px; text-align: left;
+    }
+    .price-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 32px; position: relative; overflow: hidden;
+      transition: all .25s;
+    }
+    .price-card.popular {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, rgba(124,106,240,0.08), var(--bg2));
+    }
+    .price-card.popular::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, #7c6af0, #c26af0);
+    }
+    .price-popular-tag {
+      position: absolute; top: 20px; right: 20px;
+      padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 700;
+      background: linear-gradient(135deg, #7c6af0, #c26af0); color: #fff;
+    }
+    .price-tier { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; }
+    .price-amount { font-size: 44px; font-weight: 900; letter-spacing: -2px; margin-bottom: 4px; }
+    .price-amount span { font-size: 18px; font-weight: 600; color: var(--text-muted); }
+    .price-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
+    .price-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .price-features li { display: flex; gap: 10px; font-size: 14px; align-items: flex-start; }
+    .check-icon { color: var(--accent3); flex-shrink: 0; font-weight: 700; }
+    .x-icon { color: var(--text-dim); flex-shrink: 0; }
+    .price-btn {
+      width: 100%; padding: 13px; border-radius: 12px; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: all .2s; text-align: center;
+    }
+    .price-btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .price-btn-ghost:hover { border-color: var(--border-hover); }
+    .price-btn-primary {
+      background: linear-gradient(135deg, #7c6af0, #c26af0); border: none; color: #fff;
+      box-shadow: 0 0 24px var(--glow);
+    }
+    .price-btn-primary:hover { box-shadow: 0 0 40px var(--glow); }
+
+    /* FAQ */
+    .faq-section { max-width: 760px; margin: 0 auto; }
+    .faq-list { margin-top: 56px; display: flex; flex-direction: column; gap: 12px; }
+    .faq-item {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      overflow: hidden; cursor: pointer; transition: border-color .2s;
+    }
+    .faq-item.open { border-color: var(--border-hover); }
+    .faq-question {
+      padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;
+      font-size: 15px; font-weight: 600; user-select: none;
+    }
+    .faq-arrow { font-size: 12px; color: var(--text-muted); transition: transform .25s; }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+    .faq-answer {
+      max-height: 0; overflow: hidden; transition: max-height .3s ease;
+      font-size: 14px; color: var(--text-muted); line-height: 1.8;
+    }
+    .faq-answer p { padding: 0 24px 20px; }
+    .faq-item.open .faq-answer { max-height: 200px; }
+
+    /* CTA SECTION */
+    .cta-section {
+      margin: 0 5% 96px; padding: 80px 64px; text-align: center;
+      background: linear-gradient(135deg, rgba(124,106,240,0.15), rgba(194,106,240,0.1));
+      border: 1px solid rgba(124,106,240,0.25); border-radius: 24px; position: relative; overflow: hidden;
+    }
+    .cta-section::before {
+      content: ''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+      width: 500px; height: 300px;
+      background: radial-gradient(ellipse, rgba(124,106,240,0.25), transparent 70%);
+    }
+    .cta-section h2 { font-size: clamp(28px, 4vw, 48px); font-weight: 900; letter-spacing: -1.5px; margin-bottom: 16px; }
+    .cta-section p { font-size: 17px; color: var(--text-muted); margin-bottom: 40px; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border); padding: 56px 5% 40px;
+    }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .footer-brand .nav-logo { display: inline-block; margin-bottom: 14px; font-size: 24px; }
+    .footer-brand p { font-size: 14px; color: var(--text-muted); line-height: 1.7; max-width: 260px; }
+    .footer-col h5 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col a { font-size: 13px; color: var(--text-muted); text-decoration: none; transition: color .2s; }
+    .footer-col a:hover { color: var(--text); }
+    .footer-bottom {
+      padding-top: 28px; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+    .footer-copy { font-size: 13px; color: var(--text-dim); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: 13px; color: var(--text-dim); text-decoration: none; }
+    .footer-links a:hover { color: var(--text-muted); }
+
+    /* DISCLAIMER */
+    .disclaimer {
+      font-size: 11px; color: var(--text-dim); text-align: center;
+      padding: 20px 5%; border-top: 1px solid var(--border);
+      line-height: 1.8;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .mockup-body { grid-template-columns: 1fr; }
+      .problem-grid, .buyer-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr 1fr; }
+      .how-steps { grid-template-columns: 1fr; }
+      .how-steps::before { display: none; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .stats-inner { flex-direction: column; }
+      .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .cta-section { padding: 48px 32px; margin: 0 5% 64px; }
+      .how-visual-demo { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; }
+      h1 { font-size: 38px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Lalens</div>
+  <ul class="nav-links">
+    <li><a href="#features">ฟีเจอร์</a></li>
+    <li><a href="#how">วิธีใช้</a></li>
+    <li><a href="#pricing">ราคา</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="#" class="btn-ghost">เข้าสู่ระบบ</a>
+    <a href="#" class="btn-primary">เปิดร้านฟรี →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="badge">
+    <span class="badge-dot"></span>
+    เปิด Beta แล้ว — เข้าร่วมฟรีตอนนี้
+  </div>
+  <h1>ขายการ์ดสะสม<br/><span class="gradient-text">ง่ายกว่า Facebook</span><br/>10 เท่า</h1>
+  <p class="hero-sub">ถ่ายรูปการ์ดทีเดียวทั้งกอง ระบบตัดแยกทุกใบให้อัตโนมัติ ผู้ซื้อกดจ่ายได้เลย — ไม่ต้องลงขายทีละใบอีกต่อไป</p>
+  <div class="hero-actions">
+    <a href="#" class="btn-large">เปิดร้านฟรีเลย</a>
+    <a href="#how" class="btn-large-ghost">ดูวิธีใช้งาน</a>
+  </div>
+
+  <!-- HERO MOCKUP -->
+  <div class="hero-visual">
+    <div class="mockup-window">
+      <div class="mockup-bar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <div class="mockup-url">lalens.com/shop/pikachu-store</div>
+      </div>
+      <div class="mockup-body">
+        <div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:14px;color:var(--text-muted)">📦 โพสต์ใหม่ — 6 ใบ</div>
+          <div class="card-grid">
+            <div class="card-item selected">
+              <div class="card-placeholder">
+                <div class="card-icon">⚡</div>
+                <div class="card-name">Pikachu VMAX</div>
+                <div class="card-price">฿450</div>
+              </div>
+              <div class="card-check">✓</div>
+            </div>
+            <div class="card-item">
+              <div class="card-placeholder">
+                <div class="card-icon">🌊</div>
+                <div class="card-name">Gyarados EX</div>
+                <div class="card-price">฿280</div>
+              </div>
+            </div>
+            <div class="card-item selected">
+              <div class="card-placeholder">
+                <div class="card-icon">🔥</div>
+                <div class="card-name">Charizard SR</div>
+                <div class="card-price">฿1,200</div>
+              </div>
+              <div class="card-check">✓</div>
+            </div>
+            <div class="card-item">
+              <div class="card-placeholder">
+                <div class="card-icon">🌿</div>
+                <div class="card-name">Venusaur EX</div>
+                <div class="card-price">฿320</div>
+              </div>
+            </div>
+            <div class="card-item selected">
+              <div class="card-placeholder">
+                <div class="card-icon">💎</div>
+                <div class="card-name">Mewtwo SAR</div>
+                <div class="card-price">฿2,800</div>
+              </div>
+              <div class="card-check">✓</div>
+            </div>
+            <div class="card-item">
+              <div class="card-placeholder">
+                <div class="card-icon">❄️</div>
+                <div class="card-name">Articuno</div>
+                <div class="card-price">฿180</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-sidebar">
+          <div class="sidebar-title">🛒 ตะกร้า (3 ใบ)</div>
+          <div class="order-item">
+            <div class="order-thumb">⚡</div>
+            <div class="order-info">
+              <div class="order-name">Pikachu VMAX</div>
+              <div class="order-detail">NM · โฟลหัว</div>
+            </div>
+            <div class="order-price">฿450</div>
+          </div>
+          <div class="order-item">
+            <div class="order-thumb">🔥</div>
+            <div class="order-info">
+              <div class="order-name">Charizard SR</div>
+              <div class="order-detail">NM · โฟลหัว</div>
+            </div>
+            <div class="order-price">฿1,200</div>
+          </div>
+          <div class="order-item">
+            <div class="order-thumb">💎</div>
+            <div class="order-info">
+              <div class="order-name">Mewtwo SAR</div>
+              <div class="order-detail">NM · ไม่โฟล</div>
+            </div>
+            <div class="order-price">฿2,800</div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-top:4px;">
+            <span>รวม</span><span style="color:var(--accent3)">฿4,450</span>
+          </div>
+          <button class="checkout-btn">💳 ชำระเงิน</button>
+          <div style="font-size:10px;color:var(--text-dim);text-align:center;">แนบสลิป → ตรวจอัตโนมัติ → ส่งของ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num">10×</div>
+      <div class="stat-label">เร็วกว่าลงขายบน Facebook</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">0 บาท</div>
+      <div class="stat-label">ค่าธรรมเนียมในเฟสแรก</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">10 วิ</div>
+      <div class="stat-label">ตรวจสลิปอัตโนมัติ</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">เงินเข้าบัญชีคุณโดยตรง</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section id="features">
+  <div class="section-tag">😤 ปัญหาที่เจอ</div>
+  <h2 class="section-title">Facebook ยังไม่พอ<br/><span class="gradient-text">สำหรับคนขายการ์ด</span></h2>
+  <p class="section-sub">นักสะสมทุกคนเจอปัญหาเดิม — เสียเวลาลงขายนานมาก ตามสถานะออเดอร์ไม่ได้ สับสนว่าการ์ดไหนขายไปแล้ว</p>
+  <div class="problem-grid">
+    <div class="problem-list">
+      <div class="problem-item">
+        <div class="problem-icon">😩</div>
+        <div class="problem-text">
+          <h4>ลงขายทีละใบ = เสียเวลาชั่วโมง</h4>
+          <p>มีการ์ด 50 ใบ ต้องถ่ายรูป แคปชั่น ราคา ทีละใบ กว่าจะเสร็จหมดครึ่งวัน</p>
+        </div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon">💸</div>
+        <div class="problem-text">
+          <h4>ตามสลิปมือ เหนื่อยมาก</h4>
+          <p>สลิปเข้า Inbox เต็มไปหมด ต้องจับคู่เองว่าใครโอนมา ยอดตรงไหม บางทีก็พลาด</p>
+        </div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon">😵</div>
+        <div class="problem-text">
+          <h4>ขายซ้ำ / ของหาย / สต็อกงง</h4>
+          <p>ขายหลายโพสต์พร้อมกัน มีคนกดจองหลายคน ไม่รู้ว่าใบไหนขายไปแล้ว เกิด double-sell</p>
+        </div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon">📱</div>
+        <div class="problem-text">
+          <h4>ผู้ซื้อประสบการณ์แย่</h4>
+          <p>ต้องคอมเมนต์จอง รอ DM ราคา รอเลขบัญชี รอยืนยันสลิป — ยุ่งยากทุกขั้นตอน</p>
+        </div>
+      </div>
+    </div>
+    <div class="solution-card">
+      <div class="section-tag">✨ Lalens แก้ยังไง</div>
+      <h3 style="font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-top:12px">ถ่ายรูปหมู่รูปเดียว<br/>ทุกอย่างจบในคลิกเดียว</h3>
+      <div class="solution-steps">
+        <div class="step-row">
+          <div class="step-num">1</div>
+          <div class="step-info">
+            <h4>ถ่ายรูปการ์ดพร้อมกันทั้งกอง</h4>
+            <p>ไม่ต้องถ่ายทีละใบ วางเรียงแล้วถ่ายรูปเดียวก็ได้</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">2</div>
+          <div class="step-info">
+            <h4>ระบบตัดกรอบแยกทุกใบอัตโนมัติ</h4>
+            <p>AI ตัดแยกเป็นรายใบ ผู้ขายแค่ตรวจ/ใส่ราคา ใช้เวลาไม่กี่นาที</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">3</div>
+          <div class="step-info">
+            <h4>ผู้ซื้อกดการ์ดในรูป → จ่ายได้เลย</h4>
+            <p>แนบสลิป → ตรวจอัตโนมัติ → ตัด stock → ส่งใบเสร็จ ไม่ต้องทำเอง</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE CARDS -->
+<section style="padding-top: 0">
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📸</div>
+      <h3>Batch Upload อัจฉริยะ</h3>
+      <p>ถ่ายรูปหมู่ → AI ตัดกรอบแยกทุกใบ → ตั้งชื่อ/ราคา/สภาพ → ขึ้นขายทีเดียว ไม่ต้องทำทีละใบ</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">👆</div>
+      <h3>แตะการ์ดในรูปเพื่อซื้อ</h3>
+      <p>ผู้ซื้อแตะการ์ดที่ต้องการในภาพโพสต์ใบนั้นเข้าตะกร้าได้ทันที — ไม่ต้องสื่อสารนอก platform</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">✅</div>
+      <h3>ตรวจสลิปอัตโนมัติ</h3>
+      <p>ผู้ซื้อแนบสลิปในระบบ → ตรวจ QR พร้อมเทียบบัญชีร้านและยอด → ผ่านแล้วตัด stock ทันที</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <h3>ล็อก stock ป้องกัน double-sell</h3>
+      <p>ระบบล็อกการ์ดทันทีที่เริ่ม checkout — ป้องกันการขายซ้ำ 2 คนพร้อมกัน มี timer 10 นาที</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💰</div>
+      <h3>เงินเข้าบัญชีคุณโดยตรง</h3>
+      <p>ผู้ซื้อโอนเข้าบัญชีร้านตรงๆ เราไม่พักเงิน ไม่หักค่า fee — ปลอดภัย ไม่ต้องรอ</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔗</div>
+      <h3>Share Link + OG Preview</h3>
+      <p>ได้ link สำหรับแชร์บน Facebook/Line พร้อม OG preview สวยงาม ลูกค้าเข้ามาซื้อต่อได้เลย</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="section-tag">🚀 วิธีใช้งาน</div>
+  <h2 class="section-title">เริ่มขายได้ใน<br/><span class="gradient-text">3 ขั้นตอน</span></h2>
+  <div class="how-tabs">
+    <button class="tab-btn active" onclick="switchTab(this, 'seller')">สำหรับผู้ขาย</button>
+    <button class="tab-btn" onclick="switchTab(this, 'buyer')">สำหรับผู้ซื้อ</button>
+  </div>
+
+  <div id="tab-seller">
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-step-num">1</div>
+        <h3>เปิดร้านฟรี</h3>
+        <p>สมัครด้วย Google หรือ email ตั้งชื่อร้าน URL ของตัวเอง ผูกบัญชีรับเงิน เสร็จใน 2 นาที</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">2</div>
+        <h3>ถ่ายรูปหมู่ → ลงขาย</h3>
+        <p>ถ่ายการ์ดทั้งกองในรูปเดียว ระบบตัดกรอบให้อัตโนมัติ ตั้งราคา/สภาพ แล้วกด "ขึ้นขาย"</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">3</div>
+        <h3>Share ลิงก์ → รับออเดอร์</h3>
+        <p>Copy link โพสต์ไปแปะ Facebook/Line ลูกค้าเข้ามาซื้อ สลิปผ่านอัตโนมัติ เงินเข้าบัญชีทันที</p>
+      </div>
+    </div>
+
+    <div class="how-visual-demo">
+      <div class="demo-phone">
+        <div class="demo-phone-bar">📱 lalens.com — ลงขาย</div>
+        <div class="demo-phone-body">
+          <div class="upload-area">
+            <div class="upload-area-icon">📸</div>
+            <div class="upload-area-text">ถ่ายรูปการ์ดทั้งกอง<br/>ระบบจะตัดแยกทุกใบให้อัตโนมัติ</div>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:14px">
+            <div style="flex:1;aspect-ratio:2/3;border-radius:8px;background:rgba(124,106,240,0.2);border:1px solid rgba(124,106,240,0.3);display:flex;align-items:center;justify-content:center;font-size:20px">⚡</div>
+            <div style="flex:1;aspect-ratio:2/3;border-radius:8px;background:rgba(194,106,240,0.2);border:1px solid rgba(194,106,240,0.3);display:flex;align-items:center;justify-content:center;font-size:20px">🔥</div>
+            <div style="flex:1;aspect-ratio:2/3;border-radius:8px;background:rgba(106,240,194,0.2);border:1px solid rgba(106,240,194,0.3);display:flex;align-items:center;justify-content:center;font-size:20px">💎</div>
+            <div style="flex:1;aspect-ratio:2/3;border-radius:8px;background:rgba(240,194,106,0.2);border:1px solid rgba(240,194,106,0.3);display:flex;align-items:center;justify-content:center;font-size:20px">🌊</div>
+          </div>
+          <div style="font-size:11px;color:var(--accent3);text-align:center;margin-bottom:14px">✓ ตัดกรอบแล้ว 4 ใบ — ตรวจ/แก้ก่อนขาย</div>
+          <button class="upload-btn">🚀 ขึ้นขายทั้งหมด</button>
+        </div>
+      </div>
+      <div class="demo-info">
+        <h3>ลง 50 ใบ<br/>ใช้เวลาแค่ 5 นาที</h3>
+        <p>เดิมลงทีละใบต้องใช้เวลาชั่วโมงกว่า ด้วย Lalens ถ่ายรูปเดียว ระบบทำงานให้ คุณแค่ตรวจผลและกดขาย</p>
+        <div class="demo-chips">
+          <div class="chip">✓ ตัดกรอบอัตโนมัติ</div>
+          <div class="chip">✓ Default ชื่อ/ราคา</div>
+          <div class="chip">✓ แก้ไขได้ทุกใบ</div>
+          <div class="chip">✓ Reuse รูปเดิมได้</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-buyer" style="display:none">
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-step-num">1</div>
+        <h3>เปิดลิงก์โพสต์</h3>
+        <p>ไม่ต้องสมัครสมาชิก เปิดลิงก์จาก Facebook/Line ดูการ์ดได้เลยทันที</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">2</div>
+        <h3>แตะการ์ดที่ต้องการ</h3>
+        <p>แตะการ์ดในรูปเพื่อใส่ตะกร้า ซูมดูรายละเอียดได้ เลือกหลายใบพร้อมกัน</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">3</div>
+        <h3>โอนเงิน + แนบสลิป</h3>
+        <p>โอนเข้าบัญชีร้านตรงๆ แนบสลิปในระบบ ตรวจอัตโนมัติ ได้ใบเสร็จ + tracking ทันที</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BUYER EXPERIENCE -->
+<section id="buyer-exp">
+  <div class="section-tag">🛍️ ประสบการณ์ผู้ซื้อ</div>
+  <h2 class="section-title">ซื้อการ์ดง่ายที่สุด<br/><span class="gradient-text">ไม่ต้องสมัคร ไม่ต้อง DM</span></h2>
+  <p class="section-sub">เปิดลิงก์ → กดการ์ด → โอนเงิน → ได้ของ จบใน 3 ขั้น ไม่ต้องรอร้านตอบ</p>
+  <div class="buyer-grid">
+    <div class="buyer-features">
+      <div class="buyer-feature">
+        <div class="buyer-icon">👆</div>
+        <div class="buyer-text">
+          <h4>แตะการ์ดในรูปโพสต์</h4>
+          <p>กดการ์ดแต่ละใบในภาพรวม ระบบรู้ว่าคุณกดการ์ดไหน ใส่ตะกร้าได้ทันที ไม่ต้องพิมพ์ชื่อ</p>
+        </div>
+      </div>
+      <div class="buyer-feature">
+        <div class="buyer-icon">🔍</div>
+        <div class="buyer-text">
+          <h4>ซูมดูรายละเอียดก่อนซื้อ</h4>
+          <p>แตะค้างเพื่อซูมดูสภาพการ์ด เห็นรอยชัดๆ ตัดสินใจได้ไม่ผิดหวัง</p>
+        </div>
+      </div>
+      <div class="buyer-feature">
+        <div class="buyer-icon">💳</div>
+        <div class="buyer-text">
+          <h4>จ่ายตรง ไม่ผ่านมือกลาง</h4>
+          <p>โอนเงินตรงเข้าบัญชีร้านค้า แนบสลิปในระบบ ตรวจอัตโนมัติ ไม่ต้องรอร้านยืนยัน</p>
+        </div>
+      </div>
+      <div class="buyer-feature">
+        <div class="buyer-icon">📦</div>
+        <div class="buyer-text">
+          <h4>Track ออเดอร์ได้ตลอด</h4>
+          <p>ได้ link เช็คสถานะทาง email ดูได้ว่า "รอส่ง / ส่งแล้ว / เลขพัสดุ" โดยไม่ต้องสมัครสมาชิก</p>
+        </div>
+      </div>
+    </div>
+    <div class="buyer-phone">
+      <div class="bp-header">
+        <div class="bp-shopname">⚡ Pikachu Store</div>
+        <div class="bp-badge">● Online</div>
+      </div>
+      <div class="bp-body">
+        <div class="bp-post-img">
+          <div class="bp-card sel"><span>⚡</span><div class="sel-dot">✓</div></div>
+          <div class="bp-card"><span>🌊</span></div>
+          <div class="bp-card sel"><span>🔥</span><div class="sel-dot">✓</div></div>
+          <div class="bp-card"><span>🌿</span></div>
+          <div class="bp-card"><span>💎</span></div>
+          <div class="bp-card"><span>❄️</span></div>
+        </div>
+        <div class="bp-cart">
+          <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:2px">ตะกร้าของฉัน</div>
+          <div class="bp-cart-item">
+            <div class="bp-cart-name">⚡ Pikachu VMAX</div>
+            <div class="bp-cart-price">฿450</div>
+          </div>
+          <div class="bp-cart-item">
+            <div class="bp-cart-name">🔥 Charizard SR</div>
+            <div class="bp-cart-price">฿1,200</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 4px;font-size:12px;font-weight:700">
+            <span>รวม</span><span style="color:var(--accent3)">฿1,650</span>
+          </div>
+        </div>
+        <button class="bp-checkout-btn">💳 ชำระเงิน</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" style="background: var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border)">
+  <div class="section-tag" style="margin:0 auto 20px">💬 รีวิวจากผู้ใช้</div>
+  <h2 class="section-title">นักสะสมการ์ดพูดว่า...</h2>
+  <p class="section-sub">ทีม Lalens สร้างขึ้นมาเพื่อแก้ปัญหาของคนในวงการจริงๆ</p>
+  <div class="testimonials-grid">
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">เมื่อก่อนลง 30 ใบใช้เวลา 2 ชั่วโมง ตอนนี้ใช้ Lalens <strong>ถ่ายรูปเดียวเสร็จใน 10 นาที</strong> ลงขายได้เร็วขึ้นเยอะมาก</p>
+      <div class="testi-user">
+        <div class="testi-avatar">🧑</div>
+        <div>
+          <div class="testi-name">ต้น · พิษณุโลก</div>
+          <div class="testi-role">ขายการ์ด Pokemon 3 ปี</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">ระบบตรวจสลิปอัตโนมัติ <strong>ประหยัดเวลาได้มากมาก</strong> ไม่ต้องมานั่งเช็ค Inbox ทีละรายการแล้ว stock ก็ตัดเองเลย</p>
+      <div class="testi-user">
+        <div class="testi-avatar">👩</div>
+        <div>
+          <div class="testi-name">ปลา · กรุงเทพฯ</div>
+          <div class="testi-role">ร้านการ์ดออนไลน์</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">ในฐานะผู้ซื้อ ชอบมากที่ <strong>แตะการ์ดในรูปแล้วซื้อได้เลย</strong> ไม่ต้อง DM รอร้านตอบ จ่ายเสร็จได้ใบเสร็จทันที</p>
+      <div class="testi-user">
+        <div class="testi-avatar">🧒</div>
+        <div>
+          <div class="testi-name">เฟม · ขอนแก่น</div>
+          <div class="testi-role">นักสะสม Pokemon</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="section-tag" style="margin:0 auto 20px">💎 แพ็กเกจ</div>
+  <h2 class="section-title">เริ่มต้นฟรี<br/><span class="gradient-text">ไม่มีค่า fee</span></h2>
+  <p class="section-sub">ในเฟสแรกทุกฟีเจอร์ใช้ฟรีหมด ไม่มีค่าคอมมิชชั่น</p>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-tier">Free</div>
+      <div class="price-amount">฿0 <span>/ เดือน</span></div>
+      <div class="price-desc">เริ่มขายได้เลย ไม่มีค่าใช้จ่าย</div>
+      <ul class="price-features">
+        <li><span class="check-icon">✓</span> Batch upload ไม่จำกัดโพสต์</li>
+        <li><span class="check-icon">✓</span> ตรวจสลิปอัตโนมัติ</li>
+        <li><span class="check-icon">✓</span> หน้าร้านส่วนตัว + link</li>
+        <li><span class="check-icon">✓</span> Dashboard ออเดอร์</li>
+        <li><span class="check-icon">✓</span> แจ้งเตือน email</li>
+        <li><span class="x-icon">✗</span> <span style="color:var(--text-dim)">Analytics ขั้นสูง</span></li>
+        <li><span class="x-icon">✗</span> <span style="color:var(--text-dim)">Priority support</span></li>
+      </ul>
+      <button class="price-btn price-btn-ghost">เริ่มต้นฟรี</button>
+    </div>
+    <div class="price-card popular">
+      <div class="price-popular-tag">ยอดนิยม</div>
+      <div class="price-tier">Pro</div>
+      <div class="price-amount">฿299 <span>/ เดือน</span></div>
+      <div class="price-desc">สำหรับร้านที่ขายจริงจัง</div>
+      <ul class="price-features">
+        <li><span class="check-icon">✓</span> ทุกอย่างใน Free</li>
+        <li><span class="check-icon">✓</span> Analytics ยอดขาย + ราคาตลาด</li>
+        <li><span class="check-icon">✓</span> Price index การ์ด</li>
+        <li><span class="check-icon">✓</span> Custom domain ร้าน</li>
+        <li><span class="check-icon">✓</span> Priority support</li>
+        <li><span class="check-icon">✓</span> Bulk edit ราคา</li>
+        <li><span class="check-icon">✓</span> Export รายงาน Excel</li>
+      </ul>
+      <button class="price-btn price-btn-primary">เริ่ม 30 วันฟรี</button>
+    </div>
+    <div class="price-card">
+      <div class="price-tier">Enterprise</div>
+      <div class="price-amount" style="font-size:32px">ติดต่อเรา</div>
+      <div class="price-desc">สำหรับร้านใหญ่ / event TCG</div>
+      <ul class="price-features">
+        <li><span class="check-icon">✓</span> ทุกอย่างใน Pro</li>
+        <li><span class="check-icon">✓</span> Multi-admin จัดการร้านร่วมกัน</li>
+        <li><span class="check-icon">✓</span> API integration</li>
+        <li><span class="check-icon">✓</span> Dedicated support</li>
+        <li><span class="check-icon">✓</span> Custom feature ตามต้องการ</li>
+        <li><span class="check-icon">✓</span> SLA guarantee</li>
+        <li><span class="check-icon">✓</span> Onboarding แบบส่วนตัว</li>
+      </ul>
+      <button class="price-btn price-btn-ghost">ติดต่อทีมงาน</button>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="padding-top:0">
+  <div class="faq-section">
+    <div style="text-align:center;margin-bottom:0">
+      <div class="section-tag" style="margin:0 auto 20px">❓ FAQ</div>
+      <h2 class="section-title">คำถามที่พบบ่อย</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item open" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          Lalens เก็บค่าธรรมเนียมไหม?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer"><p>เฟสแรกใช้ฟรีทุกฟีเจอร์ ไม่มีค่าคอมมิชชั่น ไม่หักเปอร์เซ็นต์จากยอดขาย เงินผู้ซื้อโอนตรงเข้าบัญชีร้านของคุณ 100%</p></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          Lalens รับผิดชอบถ้าเกิดการโกงไหม?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer"><p>Lalens เป็นเพียงเครื่องมือช่วยซื้อขาย ไม่ใช่ผู้ค้ำประกัน ระบบตรวจสลิปช่วยยืนยันการโอนเงินจริง แต่ไม่รับผิดชอบกรณีโกงนอกระบบ กรุณาตรวจสอบคู่ค้าก่อนทำธุรกรรมเสมอ</p></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          ขายการ์ดอะไรได้บ้าง?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer"><p>เฟสแรกรองรับการ์ด Pokemon ก่อน และจะขยายไปการ์ดอื่นๆ เช่น One Piece, Dragon Ball, Digimon ในเฟสถัดไป ระบบตัดกรอบทำงานได้กับการ์ดทุกประเภท</p></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          ผู้ซื้อต้องสมัครสมาชิกไหม?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer"><p>ไม่ต้อง! ผู้ซื้อเปิดลิงก์ได้เลย ดูและหยิบการ์ดใส่ตะกร้าได้โดยไม่ต้อง login ต้องกรอกแค่ email ตอน checkout เพื่อรับใบเสร็จและ link ติดตามออเดอร์</p></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          ถ้าแนบสลิปผิดหรือหมดเวลา checkout จะเป็นยังไง?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer"><p>สลิปไม่ผ่าน → ระบบแจ้งผู้ซื้อและไม่ตัด stock การ์ดถูกปลดล็อกกลับมาทันที ถ้า checkout นานเกิน 10 นาทีโดยไม่แนบสลิป ระบบจะปลดล็อกการ์ดกลับเป็น "ว่าง" อัตโนมัติ</p></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          ข้อมูลบัญชีธนาคารของเราปลอดภัยไหม?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer"><p>ข้อมูลบัญชีธนาคารทั้งหมดถูกเข้ารหัส (encrypted at rest) ตามมาตรฐาน เก็บในฐานข้อมูลที่ปลอดภัย ใช้เฉพาะการตรวจสอบสลิป ไม่ถูกเปิดเผยต่อบุคคลที่สาม</p></div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-question">
+          ระบบตัดกรอบการ์ดทำงานยังไง?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer"><p>ใช้ Computer Vision ตรวจหา bounding box ของการ์ดแต่ละใบในรูป แล้วตัดแยกเป็นไฟล์รายใบ ผู้ขายยังสามารถแก้กรอบ/ตัดใหม่ได้ก่อนขึ้นขาย ระบบไม่ได้ระบุว่าเป็นการ์ดอะไร ผู้ขายใส่ชื่อเองได้</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2>พร้อมขายการ์ด<br/><span class="gradient-text">ง่ายขึ้น 10 เท่า?</span></h2>
+  <p>เปิดร้านฟรี ไม่ต้องใช้บัตรเครดิต เริ่มได้ใน 2 นาที</p>
+  <a href="#" class="btn-large">เปิดร้านฟรีเลย →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="nav-logo">Lalens</div>
+      <p>เครื่องมือช่วยขายการ์ดสะสมที่ง่ายที่สุด เริ่มที่ Pokemon และกำลังขยายสู่การ์ดทุกประเภท</p>
+    </div>
+    <div class="footer-col">
+      <h5>สำหรับผู้ขาย</h5>
+      <ul>
+        <li><a href="#">เปิดร้าน</a></li>
+        <li><a href="#">วิธีลงขาย</a></li>
+        <li><a href="#">Dashboard</a></li>
+        <li><a href="#">แพ็กเกจ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>สำหรับผู้ซื้อ</h5>
+      <ul>
+        <li><a href="#">วิธีซื้อ</a></li>
+        <li><a href="#">ติดตามออเดอร์</a></li>
+        <li><a href="#">วิธีแนบสลิป</a></li>
+        <li><a href="#">ช่วยเหลือ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>บริษัท</h5>
+      <ul>
+        <li><a href="#">เกี่ยวกับเรา</a></li>
+        <li><a href="#">นโยบายความเป็นส่วนตัว</a></li>
+        <li><a href="#">เงื่อนไขการใช้งาน</a></li>
+        <li><a href="#">ติดต่อเรา</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Lalens. Made with ❤️ สำหรับนักสะสมการ์ด</div>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms</a>
+      <a href="#">PDPA</a>
+    </div>
+  </div>
+</footer>
+
+<div class="disclaimer">
+  ⚠️ Lalens เป็นเพียงเครื่องมือช่วยซื้อขาย ไม่ใช่ผู้ค้ำประกันธุรกรรม | เงินโอนตรงระหว่างผู้ซื้อและผู้ขาย ไม่ผ่านระบบ Lalens |
+  Lalens ไม่รับผิดชอบกรณีโกงหรือข้อพิพาทระหว่างผู้ซื้อและผู้ขาย กรุณาตรวจสอบคู่ค้าก่อนทุกครั้ง
+</div>
+
+<script>
+  function toggleFaq(el) {
+    const isOpen = el.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!isOpen) el.classList.add('open');
+  }
+
+  function switchTab(btn, tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-seller').style.display = tab === 'seller' ? '' : 'none';
+    document.getElementById('tab-buyer').style.display = tab === 'buyer' ? '' : 'none';
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.feature-card, .testi-card, .price-card, .how-step, .buyer-feature, .problem-item').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(24px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
