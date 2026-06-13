@@ -20,3 +20,25 @@
   --color-status-reserved:  #f59e0b;
   --color-status-sold:      #6b7280;
 }
+
+/* ============================================================
+   Landing page — Lalens playful theme tokens
+   ============================================================ */
+:root {
+  --ld-red:          #ee1c25;
+  --ld-red-deep:     #c0141b;
+  --ld-yellow:       #ffcb05;
+  --ld-yellow-deep:  #eaa600;
+  --ld-blue:         #2a75bb;
+  --ld-ink:          #1c1b24;
+  --ld-muted:        #5d5c69;
+  --ld-paper:        #ffffff;
+  --ld-warm:         #fff6ec;
+  --ld-tint-red:     #fff1ef;
+  --ld-tint-yellow:  #fff8d8;
+  --ld-tint-blue:    #eef5ff;
+  --ld-line:         #ececef;
+  --ld-maxw:         1180px;
+  --ld-radius:       14px;
+  --ld-shadow:       0 12px 30px -10px rgba(28,27,36,.4);
+}
