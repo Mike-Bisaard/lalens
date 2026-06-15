@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import CopyButton from './CopyButton'
+import PostActions from './PostActions'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -71,16 +71,6 @@ function IconPlus() {
   )
 }
 
-function IconStore() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 9l1-6h16l1 6"/>
-      <path d="M3 9a2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0"/>
-      <path d="M5 9v12h14V9"/>
-      <rect x="9" y="14" width="6" height="7"/>
-    </svg>
-  )
-}
 
 function IconCamera() {
   return (
@@ -200,8 +190,8 @@ function PostCard({ batch, shopSlug }: PostCardProps) {
             position: 'absolute',
             top: 12,
             right: 12,
-            background: isAllSold ? '#eceaee' : '#e9f7ee',
-            color: isAllSold ? '#6b6a76' : '#207a3c',
+            background: !batch.is_active ? '#fff8d8' : isAllSold ? '#eceaee' : '#e9f7ee',
+            color: !batch.is_active ? '#b47a00' : isAllSold ? '#6b6a76' : '#207a3c',
             fontFamily: '"Kanit", sans-serif',
             fontWeight: 700,
             fontSize: 11,
@@ -209,7 +199,7 @@ function PostCard({ batch, shopSlug }: PostCardProps) {
             borderRadius: 999,
           }}
         >
-          {isAllSold ? 'ขายหมดแล้ว' : 'กำลังขาย'}
+          {!batch.is_active ? 'ซ่อนอยู่' : isAllSold ? 'ขายหมดแล้ว' : 'กำลังขาย'}
         </div>
       </div>
 
@@ -280,41 +270,12 @@ function PostCard({ batch, shopSlug }: PostCardProps) {
           ขายไปแล้ว {soldCards}/{totalCards} ใบ ({soldPct}%)
         </p>
 
-        {/* Action row */}
-        <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-          <CopyButton
-            url={`${process.env.NEXT_PUBLIC_APP_URL ?? 'https://lalens.com'}/${shopSlug}?batch=${batch.id}`}
-            label="คัดลอกลิงก์"
-          />
-
-          <a
-            href={shopUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              flex: 1,
-              border: '1.5px solid #e0dde3',
-              background: '#fff',
-              color: '#1c1b24',
-              fontFamily: '"Kanit", sans-serif',
-              fontWeight: 600,
-              fontSize: 13,
-              padding: 9,
-              borderRadius: 10,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              cursor: 'pointer',
-              textDecoration: 'none',
-              transition: 'border-color 0.15s, color 0.15s',
-            }}
-            className="post-action-link"
-          >
-            <IconStore />
-            ดูโพสต์
-          </a>
-        </div>
+        <PostActions
+          batchId={batch.id}
+          shopSlug={shopSlug}
+          isActive={batch.is_active}
+          appUrl={process.env.NEXT_PUBLIC_APP_URL ?? 'https://lalens.com'}
+        />
       </div>
     </div>
   )
@@ -334,12 +295,12 @@ export default async function PostsPage() {
     .maybeSingle()
   if (!shop) redirect('/dashboard/setup')
 
+  // Show all batches (including hidden) to the shop owner
   const { data: batches } = await supabase
     .from('batch_uploads')
     .select(`id, caption, created_at, is_active,
       cards(id, name, image_url, status)`)
     .eq('shop_id', shop.id)
-    .eq('is_active', true)
     .order('created_at', { ascending: false })
 
   const isEmpty = !batches || batches.length === 0
