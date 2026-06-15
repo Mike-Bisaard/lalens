@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { DashSidebar } from './DashSidebar'
 import { cn } from '@/lib/utils'
+import { getAuthenticatedShop } from '@/lib/getShop'
 
 const KAN: React.CSSProperties = { fontFamily: '"Kanit", sans-serif' }
 
@@ -14,23 +14,21 @@ interface DashboardLayoutProps {
 }
 
 export async function DashboardLayout({ title = 'ภาพรวมร้าน', subtitle, children, className }: DashboardLayoutProps) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  // Uses React cache() — if the page already called getAuthenticatedShop(), no extra DB round trip
+  const auth = await getAuthenticatedShop()
+  if (!auth) redirect('/login')
+  const { shop, supabase } = auth
 
-  let shopName = 'ร้านของฉัน'
-  let shopSlug = ''
-  let pendingOrders = 0
+  // Count pending-ship orders for this shop only
+  const { count } = await supabase
+    .from('orders')
+    .select('*', { count: 'exact', head: true })
+    .eq('shop_id', shop.id)
+    .eq('status', 'paid')
 
-  if (!user) redirect('/login')
-
-  const [{ data: shop }, { count }] = await Promise.all([
-    supabase.from('shops').select('name, slug').eq('owner_id', user.id).maybeSingle(),
-    supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'paid'),
-  ])
-  if (!shop) redirect('/dashboard/setup')
-  shopName = shop.name
-  shopSlug = shop.slug
-  pendingOrders = count ?? 0
+  const shopName = shop.name
+  const shopSlug = shop.slug
+  const pendingOrders = count ?? 0
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#faf7f2', fontFamily: '"Anuphan", sans-serif' }}>

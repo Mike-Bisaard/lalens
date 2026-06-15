@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { sendNewOrderEmail, sendOrderConfirmationEmail } from '@/lib/email'
+import { scheduleOrderRelease } from '@/lib/qstash'
 
 // Use admin client (bypasses RLS + has full GRANT) for all order operations
 function adminClient() {
@@ -76,6 +77,11 @@ export async function POST(req: NextRequest) {
     await supabase.from('orders').update({ status: 'cancelled' }).eq('id', order.id)
     return NextResponse.json({ error: 'cards_unavailable' }, { status: 409 })
   }
+
+  // Schedule QStash to release this order at exactly expires_at (fire-and-forget)
+  scheduleOrderRelease(order.id, new Date(expiresAt)).catch(err =>
+    console.error('[orders] QStash schedule failed:', err)
+  )
 
   // Send emails (fire-and-forget — don't block the response)
   const { data: shop } = await supabase
