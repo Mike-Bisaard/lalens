@@ -9,7 +9,8 @@ export interface Shop {
   slug: string
   description: string | null
   avatar_url: string | null
-  bank_account_encrypted: string
+  bank_account_encrypted: string  // encrypted at rest — never expose to client
+  bank_account_last4: string      // last 4 digits for safe client display
   bank_name: string
   created_at: string
 }

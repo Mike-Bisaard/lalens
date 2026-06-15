@@ -131,6 +131,40 @@ export async function sendPaymentVerifiedEmail(opts: {
   })
 }
 
+// ─── Waitlist: card available again ──────────────────────────────────────────
+export async function sendCardAvailableEmail(opts: {
+  email: string
+  cardName: string
+  cardId: string
+  shopSlug: string
+  shopName: string
+  price: number
+}) {
+  const amount = (opts.price / 100).toLocaleString('th-TH')
+  const shopUrl = `${APP_URL}/${opts.shopSlug}`
+
+  await resend.emails.send({
+    from: FROM,
+    to: opts.email,
+    subject: `🔔 การ์ดที่คุณติดตามปลดล็อคแล้ว — ${opts.shopName}`,
+    html: emailLayout(`
+      <h2 style="margin:0 0 8px">การ์ดของคุณพร้อมแล้ว!</h2>
+      <p style="color:#888;margin:0 0 24px">การ์ดที่คุณติดตามปลดล็อคจากการจองแล้ว รีบไปซื้อก่อนใครเลย</p>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
+        <tr><td style="padding:8px 0;color:#888">การ์ด</td><td style="padding:8px 0;font-weight:600">${opts.cardName || 'การ์ด Pokemon'}</td></tr>
+        <tr><td style="padding:8px 0;color:#888">ร้านค้า</td><td style="padding:8px 0;font-weight:600">${opts.shopName}</td></tr>
+        <tr><td style="padding:8px 0;color:#888">ราคา</td><td style="padding:8px 0;font-weight:600;color:#a855f7">฿${amount}</td></tr>
+      </table>
+      <a href="${shopUrl}" style="display:inline-block;background:linear-gradient(135deg,#7c3aed,#a21caf);color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700">
+        ไปที่ร้านค้า →
+      </a>
+      <p style="color:#555;font-size:13px;margin-top:24px">
+        อีเมลนี้ส่งเพียงครั้งเดียว ไม่ต้องยกเลิกสมัครใด ๆ
+      </p>
+    `),
+  })
+}
+
 // ─── Shared layout ────────────────────────────────────────────────────────────
 function emailLayout(content: string) {
   return `<!DOCTYPE html>

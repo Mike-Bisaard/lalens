@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { verifySlip } from '@/lib/slip'
+import { decrypt } from '@/lib/crypto'
 import { sendOrderPaidEmail, sendPaymentVerifiedEmail } from '@/lib/email'
 
 function adminClient() {
@@ -18,7 +19,6 @@ export async function POST(req: NextRequest) {
 
   const supabase = adminClient()
 
-  // Fetch order + shop bank account
   const { data: order } = await supabase
     .from('orders')
     .select('*, shops(bank_account_encrypted, bank_name)')
@@ -27,33 +27,38 @@ export async function POST(req: NextRequest) {
 
   if (!order) return NextResponse.json({ error: 'order_not_found' }, { status: 404 })
 
-  // Guard: already paid
-  if (order.status !== 'pending_payment') {
+  // Guard: only pending_payment or verifying (verifying = slip submitted, waiting for result)
+  if (order.status !== 'pending_payment' && order.status !== 'verifying') {
     return NextResponse.json({ error: 'order_not_payable' }, { status: 400 })
   }
 
-  // Guard: timer must be checked from slip_submitted_at (not verification time)
-  const submittedAt = order.slip_submitted_at
-    ? new Date(order.slip_submitted_at)
-    : new Date()
-
+  // Bug #2 fix: check timer against now, before any state change
   if (order.expires_at && new Date() > new Date(order.expires_at)) {
     return NextResponse.json({ error: 'order_expired' }, { status: 410 })
   }
 
-  // Mark slip_submitted_at on first submit (timer anchor)
+  // Bug #2 fix: on first slip submit, reset expires_at = now + 10min so cron
+  // cannot release this reservation while verification is in progress
   if (!order.slip_submitted_at) {
+    const newExpiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString()
     await supabase
       .from('orders')
-      .update({ slip_submitted_at: new Date().toISOString(), slip_url: slipUrl, status: 'verifying' })
+      .update({
+        slip_submitted_at: new Date().toISOString(),
+        slip_url: slipUrl,
+        status: 'verifying',
+        expires_at: newExpiresAt,
+      })
       .eq('id', orderId)
   }
 
-  // Verify slip
+  // Decrypt bank account before passing to slip provider (Bug #4 fix)
+  const bankAccount = decrypt(order.shops.bank_account_encrypted)
+
   const result = await verifySlip(
     slipUrl,
-    order.total_amount / 100,            // satang → baht
-    order.shops.bank_account_encrypted   // plain-text account stored in DB
+    order.total_amount / 100,
+    bankAccount
   )
 
   if (!result.success) {
@@ -71,22 +76,30 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: 'duplicate_slip' }, { status: 200 })
   }
 
-  // All checks passed — mark paid + cut stock
-  await supabase.rpc('release_expired_reservations') // clean up others first
+  // Bug #3 fix: atomic status transition — only one concurrent request can win
+  // If two requests pass the duplicate slip check simultaneously, only one succeeds here
+  const { data: locked } = await supabase
+    .from('orders')
+    .update({ status: 'paid', slip_verified_at: new Date().toISOString() })
+    .eq('id', orderId)
+    .in('status', ['pending_payment', 'verifying'])
+    .select('id')
+    .single()
+
+  if (!locked) {
+    // Another request already processed this payment — return success idempotently
+    return NextResponse.json({ success: true, orderId })
+  }
 
   const { data: orderItems } = await supabase
     .from('order_items')
     .select('card_id')
     .eq('order_id', orderId)
 
-  const cardIds = (orderItems ?? []).map(i => i.card_id)
+  const cardIds = (orderItems ?? []).map((i: { card_id: string }) => i.card_id)
 
   await Promise.all([
     supabase.from('cards').update({ status: 'sold' }).in('id', cardIds),
-    supabase.from('orders').update({
-      status: 'paid',
-      slip_verified_at: new Date().toISOString(),
-    }).eq('id', orderId),
     supabase.from('slip_transactions').insert({
       transaction_ref: result.transaction_ref,
       order_id: orderId,

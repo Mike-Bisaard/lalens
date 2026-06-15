@@ -51,10 +51,7 @@ export default function CartDrawer({ isOpen, onClose, cart, shop, onRemove }: Pr
     setStep('checkout')
   }
 
-  // Mask bank account: show last 4 digits only
-  const maskedAccount = shop.bank_account_encrypted.length > 4
-    ? '•'.repeat(shop.bank_account_encrypted.length - 4) + shop.bank_account_encrypted.slice(-4)
-    : shop.bank_account_encrypted
+  const maskedAccount = `•••• •••• ${shop.bank_account_last4 ?? '????'}`
 
   if (!isOpen) return null
 

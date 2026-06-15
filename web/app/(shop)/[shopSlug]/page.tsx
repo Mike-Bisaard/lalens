@@ -56,7 +56,7 @@ async function supabaseGET<T>(path: string): Promise<T[]> {
 
 async function getShopData(shopSlug: string) {
   const shops = await supabaseGET<Shop>(
-    `shops?slug=eq.${encodeURIComponent(shopSlug)}&select=*&limit=1`
+    `shops?slug=eq.${encodeURIComponent(shopSlug)}&select=id,owner_id,name,slug,description,avatar_url,bank_name,bank_account_last4,created_at&limit=1`
   )
   const shop = shops[0]
   if (!shop) return null
