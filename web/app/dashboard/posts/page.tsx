@@ -88,11 +88,13 @@ interface PostCardProps {
 
 function PostCard({ batch, shopSlug }: PostCardProps) {
   const cards = batch.cards ?? []
-  const totalCards = cards.length
   const soldCards = cards.filter(c => c.status === 'sold').length
   const availableCards = cards.filter(c => c.status === 'available').length
-  const isAllSold = availableCards === 0 && totalCards > 0
-  const soldPct = totalCards > 0 ? Math.round((soldCards / totalCards) * 100) : 0
+  // Exclude removed cards from totals — they were never sold, shouldn't affect progress
+  const activeCards = cards.filter(c => c.status !== 'removed').length
+  const isAllSold = availableCards === 0 && soldCards > 0
+  const soldPct = activeCards > 0 ? Math.round((soldCards / activeCards) * 100) : 0
+  const totalCards = cards.length
 
   const title = batch.caption?.trim() ||
     `โพสต์ขาย ${totalCards} ใบ · ${formatDate(batch.created_at)}`
