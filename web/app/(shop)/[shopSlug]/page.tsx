@@ -62,7 +62,7 @@ async function getShopData(shopSlug: string) {
   if (!shop) return null
 
   const batches = await supabaseGET<BatchWithCards>(
-    `batch_uploads?shop_id=eq.${encodeURIComponent(shop.id)}&is_active=eq.true&select=*,cards(*)&order=created_at.desc`
+    `batch_uploads?shop_id=eq.${encodeURIComponent(shop.id)}&is_active=eq.true&deleted_at=is.null&select=*,cards(*)&order=created_at.desc`
   )
 
   return { shop, batches }

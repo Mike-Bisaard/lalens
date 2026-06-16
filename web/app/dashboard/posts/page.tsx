@@ -295,12 +295,13 @@ export default async function PostsPage() {
     .maybeSingle()
   if (!shop) redirect('/dashboard/setup')
 
-  // Show all batches (including hidden) to the shop owner
+  // Show all non-deleted batches (including hidden) to the shop owner
   const { data: batches } = await supabase
     .from('batch_uploads')
     .select(`id, caption, created_at, is_active,
       cards(id, name, image_url, status)`)
     .eq('shop_id', shop.id)
+    .is('deleted_at', null)
     .order('created_at', { ascending: false })
 
   const isEmpty = !batches || batches.length === 0
