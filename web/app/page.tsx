@@ -1,35 +1,16 @@
 import Link from 'next/link'
-import { FAQAccordion } from '@/components/ui'
+import { FAQAccordion, TapToBuyDemo, BatchScanDemo, CardFace, UserMenu } from '@/components/ui'
 
 /* ── shared style helpers ─────────────────────────────────── */
 const KAN = { fontFamily: 'var(--font-kanit), sans-serif' } as const
 const ANU = { fontFamily: 'var(--font-anuphan), sans-serif' } as const
 
-/* ── tiny card used in hero mockup ───────────────────────── */
-function CardThumb({ color, rotate = 0, star = false }: { color: string; rotate?: number; star?: boolean }) {
-  return (
-    <div style={{
-      width: 80, height: 112, borderRadius: 10, background: color,
-      border: '2px solid rgba(28,27,36,.18)', transform: `rotate(${rotate}deg)`,
-      position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      boxShadow: '0 8px 20px -6px rgba(28,27,36,.4)', flexShrink: 0,
-    }}>
-      {star && (
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="#ffcb05" stroke="#1c1b24" strokeWidth="1.4" strokeLinejoin="round">
-          <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
-        </svg>
-      )}
-    </div>
-  )
-}
 
 const FAQ_ITEMS = [
   { q: 'ต้องเสียค่าธรรมเนียมไหม', a: 'ช่วงเปิดตัวใช้ฟรีทุกฟีเจอร์ เราจะแจ้งล่วงหน้าก่อนเสมอถ้ามีการเปลี่ยนแปลงในอนาคต' },
   { q: 'เงินค่าขายเข้าที่ไหน', a: 'ผู้ซื้อโอนตรงเข้าบัญชีธนาคารของคุณเลย ระบบเราไม่ถือเงินและไม่หักค่าคอมมิชชั่นใดๆ' },
   { q: 'ผู้ซื้อต้องสมัครสมาชิกไหม', a: 'ไม่ต้อง ผู้ซื้อเปิดดูและเลือกซื้อได้เลยโดยไม่ต้องสมัคร กรอกแค่ email ตอน checkout เพื่อรับใบเสร็จ' },
-  { q: 'ระบบตัดกรอบการ์ดแม่นแค่ไหน', a: 'ระบบใช้ Computer Vision ตรวจจับขอบการ์ดอัตโนมัติ แม่นมากกับการ์ดวางบนพื้นเรียบ ผู้ขายสามารถแก้ไขกรอบก่อน publish ได้' },
   { q: 'ถ้า 2 คนกดซื้อใบเดียวกันพร้อมกันล่ะ', a: 'ระบบล็อกการ์ดทันทีที่มีคนเริ่ม checkout (ก่อนโอนเงินด้วยซ้ำ) คนที่สองจะเห็นสถานะ "ถูกจองแล้ว" ไม่มีขายซ้ำแน่นอน' },
-  { q: 'รองรับการ์ดเกมอะไรบ้าง', a: 'ตอนนี้รองรับทุกการ์ดสะสมที่เป็นรูปสี่เหลี่ยม เริ่มจาก Pokemon TCG และกำลังขยายไปการ์ดอื่นๆ' },
 ]
 
 export default function LandingPage() {
@@ -65,18 +46,7 @@ export default function LandingPage() {
             </div>
 
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }} className="md:ml-0">
-              <Link href="/login"
-                className="hidden sm:block"
-                style={{ ...KAN, fontWeight: 600, fontSize: 15, color: 'var(--ld-muted)', padding: '9px 18px', borderRadius: 999, border: '1.5px solid var(--ld-line)', textDecoration: 'none' }}>
-                เข้าสู่ระบบ
-              </Link>
-              <Link href="/register" style={{
-                ...KAN, fontWeight: 600, fontSize: 15, color: '#fff', background: 'var(--ld-red)',
-                padding: '9px 20px', borderRadius: 999, boxShadow: '0 4px 0 var(--ld-red-deep)',
-                textDecoration: 'none', whiteSpace: 'nowrap',
-              }}>
-                สมัครฟรี
-              </Link>
+              <UserMenu variant="landing" />
             </div>
           </div>
         </div>
@@ -90,7 +60,7 @@ export default function LandingPage() {
             <div>
               <Chip color="red">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
-                ไม่ ที่อยู่เปลี่ยนได้หน่อยนะ
+                ใหม่ · เครื่องมือช่วยขายการ์ด
               </Chip>
 
               <h1 style={{ ...KAN, fontWeight: 700, fontSize: 'clamp(40px, 5.8vw, 68px)', lineHeight: 1.1, marginTop: 20 }}>
@@ -139,64 +109,46 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Visual */}
-            <div style={{ position: 'relative', minHeight: 400 }}>
-              {/* Floating cards */}
-              <div style={{ position: 'absolute', top: -24, right: -8, zIndex: 0 }}><CardThumb color="linear-gradient(135deg,#f97316,#fbbf24)" rotate={12} star /></div>
-              <div style={{ position: 'absolute', top: 50, right: 62, zIndex: 0 }}><CardThumb color="linear-gradient(135deg,#7c3aed,#a855f7)" rotate={-6} star /></div>
-              <div style={{ position: 'absolute', top: -8, right: 118, zIndex: 0 }}><CardThumb color="linear-gradient(135deg,#0ea5e9,#38bdf8)" rotate={8} /></div>
-              <div style={{ position: 'absolute', bottom: 28, right: -4, zIndex: 0 }}><CardThumb color="linear-gradient(135deg,#16a34a,#4ade80)" rotate={-10} /></div>
-              <div style={{ position: 'absolute', bottom: 8, right: 96, zIndex: 0 }}><CardThumb color="linear-gradient(135deg,#dc2626,#f87171)" rotate={5} star /></div>
-              <div style={{ position: 'absolute', top: 118, right: -18, zIndex: 0 }}><CardThumb color="linear-gradient(135deg,#d97706,#fbbf24)" rotate={-3} /></div>
+            {/* Visual — BatchScan grid + float cards + stat chips */}
+            <div style={{ position: 'relative' }}>
+              {/* Float card fc-1: ริซาร์ top-right */}
+              <div style={{ position: 'absolute', top: -34, right: -14, width: 124, zIndex: 3, transform: 'rotate(8deg)' }}>
+                <CardFace tone="fire" emblem="Star" hp={130} holo stars={3} rarity="EX" name="ริซาร์" price={990} />
+              </div>
+              {/* Float card fc-2: มิว bottom-left */}
+              <div style={{ position: 'absolute', bottom: -30, left: -26, width: 124, zIndex: 3, transform: 'rotate(-9deg)' }}>
+                <CardFace tone="psychic" emblem="Spark" hp={110} holo stars={3} rarity="UR" name="มิว" />
+              </div>
 
-              {/* Phone mockup */}
-              <div style={{
-                position: 'relative', zIndex: 2,
-                background: '#1c1b24', borderRadius: 28,
-                boxShadow: '0 32px 80px -20px rgba(28,27,36,.55)',
-                padding: '16px 18px 20px', maxWidth: 300, margin: '20px auto',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 12 }}>
-                  {['#ff5f57', '#febc2e', '#28c840'].map(c => (
-                    <span key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c, display: 'block' }} />
-                  ))}
-                  <span style={{ flex: 1, background: 'rgba(255,255,255,.08)', borderRadius: 5, padding: '3px 9px', fontSize: 10, color: 'rgba(255,255,255,.4)', marginLeft: 4 }}>
-                    lalens.com/r/myshop
-                  </span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 7 }}>
-                  {[
-                    { bg: 'linear-gradient(135deg,#f97316,#fbbf24)', star: true, price: '450' },
-                    { bg: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', star: false, price: '280' },
-                    { bg: 'linear-gradient(135deg,#dc2626,#f87171)', star: true, price: '1,200' },
-                    { bg: 'linear-gradient(135deg,#16a34a,#4ade80)', star: false, price: '320' },
-                    { bg: 'linear-gradient(135deg,#7c3aed,#c084fc)', star: true, price: '2,800' },
-                    { bg: 'linear-gradient(135deg,#d97706,#fcd34d)', star: false, price: '180' },
-                  ].map((c, i) => (
-                    <div key={i} style={{ borderRadius: 7, background: c.bg, aspectRatio: '5/7', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', border: '1.5px solid rgba(255,255,255,.15)' }}>
-                      {c.star && (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#ffcb05" stroke="#1c1b24" strokeWidth="1.5"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
-                      )}
-                      <span style={{ position: 'absolute', bottom: 3, fontSize: 8, ...KAN, fontWeight: 700, color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,.6)' }}>฿{c.price}</span>
-                    </div>
-                  ))}
+              {/* Stat chip sc-a */}
+              <div style={{ position: 'absolute', top: '26%', left: -40, zIndex: 4, background: '#fff', borderRadius: 16, padding: '12px 16px', boxShadow: '0 14px 34px -12px rgba(28,27,36,.5)', display: 'flex', alignItems: 'center', gap: 11 }}>
+                <span style={{ width: 38, height: 38, borderRadius: 11, background: 'var(--ld-red)', color: '#fff', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 2v14a2 2 0 0 0 2 2h14" /><path d="M2 6h14a2 2 0 0 1 2 2v14" />
+                  </svg>
+                </span>
+                <div>
+                  <b style={{ ...KAN, fontSize: 20, fontWeight: 700, display: 'block', lineHeight: 1, color: 'var(--ld-ink)' }}>6 ใบ</b>
+                  <small style={{ fontSize: 12.5, color: 'var(--ld-muted)', fontWeight: 500 }}>ตัดกรอบใน 1 รูป</small>
                 </div>
               </div>
 
-              {/* Stat chips */}
-              <div style={{ position: 'absolute', top: '22%', left: -36, zIndex: 5, background: '#fff', borderRadius: 16, padding: '10px 14px', boxShadow: '0 14px 34px -12px rgba(28,27,36,.5)', display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--ld-red)', display: 'grid', placeItems: 'center', fontSize: 17, flexShrink: 0 }}>📸</span>
+              {/* Stat chip sc-b */}
+              <div style={{ position: 'absolute', top: '50%', right: -8, zIndex: 4, background: '#fff', borderRadius: 16, padding: '12px 16px', boxShadow: '0 14px 34px -12px rgba(28,27,36,.5)', display: 'flex', alignItems: 'center', gap: 11 }}>
+                <span style={{ width: 38, height: 38, borderRadius: 11, background: 'var(--ld-blue)', color: '#fff', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 3.5h14v17l-2.3-1.4L14.4 21 12 19.6 9.6 21l-2.3-1.9L5 20.5v-17Z" />
+                    <path d="M8.5 8h7M8.5 12h7M8.5 15.5h4" />
+                  </svg>
+                </span>
                 <div>
-                  <b style={{ ...KAN, fontSize: 18, fontWeight: 700, display: 'block', lineHeight: 1, color: 'var(--ld-ink)' }}>6 ใบ</b>
-                  <small style={{ fontSize: 11.5, color: 'var(--ld-muted)', fontWeight: 500 }}>ถ่ายรูปเดียว</small>
+                  <b style={{ ...KAN, fontSize: 16, fontWeight: 700, display: 'block', lineHeight: 1.2, color: 'var(--ld-ink)' }}>ตรวจสลิปอัตโนมัติ</b>
+                  <small style={{ fontSize: 12.5, color: 'var(--ld-muted)', fontWeight: 500 }}>ตัดสต็อกทันที</small>
                 </div>
               </div>
-              <div style={{ position: 'absolute', bottom: '14%', right: -12, zIndex: 5, background: '#fff', borderRadius: 16, padding: '10px 14px', boxShadow: '0 14px 34px -12px rgba(28,27,36,.5)', display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--ld-yellow)', display: 'grid', placeItems: 'center', fontSize: 17, flexShrink: 0 }}>✅</span>
-                <div>
-                  <b style={{ ...KAN, fontSize: 13, fontWeight: 700, lineHeight: 1.25, color: 'var(--ld-ink)', display: 'block' }}>ตรวจสอบให้<br />อัตโนมัติ</b>
-                </div>
-              </div>
+
+              {/* Main batch scan grid */}
+              <BatchScanDemo variant="grid" />
             </div>
           </div>
         </div>
@@ -212,14 +164,14 @@ export default function LandingPage() {
                 ถ่ายรูปเดียว<br />ลงขายได้ทั้งกอง
               </h2>
               <p style={{ fontSize: 18, color: 'var(--ld-muted)', marginTop: 16, lineHeight: 1.65 }}>
-                สลิปผ่านระบบตรวจ QR อัตโนมัติ ผู้ซื้อแตะการ์ดในรูปแล้วจ่ายจบในเว็บ ตลาดซื้อขายการ์ดสะสมที่ดีกว่า Facebook
+                เลิกพิมพ์โพสต์ทีละใบจนนิ้วล้า จุดที่ระบบขายทั่วไปยังทำไม่ได้ — ลงของเป็นกองในไม่กี่นาที
               </p>
               <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {[
-                  { n: 1, color: 'var(--ld-red)', title: 'ถ่ายรูปหมู่ใบเดียว', desc: 'วางการ์ดลงบนโต๊ะ ถ่ายรูปทีเดียวทั้งกอง ระบบตัดแยกใบให้อัตโนมัติ' },
-                  { n: 2, color: 'var(--ld-yellow)', textC: 'var(--ld-ink)', title: 'ตรวจ/แก้ไขก่อน publish', desc: 'ตั้งชื่อ ราคา สภาพ (NM/LP/MP) แก้ไขกรอบได้ ระบบ default ให้หมด' },
-                  { n: 3, color: 'var(--ld-blue)', title: 'กด "ขึ้นขาย" ได้เลย', desc: 'ได้ลิงก์ร้านพร้อม OG preview แชร์ไปเฟซ/ไลน์ ลูกค้าซื้อต่อได้ทันที' },
-                  { n: 4, color: 'var(--ld-ink)', title: 'ดู Dashboard ออเดอร์', desc: 'เห็นออเดอร์ใหม่ พิมพ์เลขพัสดุ แจ้งเตือน email + in-app ครบ' },
+                  { n: 1, color: 'var(--ld-red)', title: 'ถ่ายรูปหมู่ทีเดียว', desc: 'วางการ์ดเรียงกันแล้วถ่ายรูปเดียว ไม่ต้องแยกถ่ายทีละใบ' },
+                  { n: 2, color: 'var(--ld-yellow)', textC: 'var(--ld-ink)', title: 'ระบบตัดกรอบให้อัตโนมัติ', desc: 'AI ตัดกรอบแยกเป็นรายใบ พร้อมให้คุณตรวจ/ลากแก้กรอบได้' },
+                  { n: 3, color: 'var(--ld-blue)', title: 'ตั้งราคา/สภาพ (มี default ให้)', desc: 'ระบบเติมค่าเริ่มต้นให้ แก้เฉพาะที่อยากแก้ เร็วกว่าพิมพ์เอง' },
+                  { n: 4, color: 'var(--ld-ink)', title: 'กดขึ้นขาย — ได้ลิงก์ร้านทันที', desc: 'เห็นของทั้งร้านใน 1 ลิงก์ พร้อม preview สวยตอนแชร์' },
                 ].map(s => (
                   <div key={s.n} style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
                     <span style={{ width: 38, height: 38, borderRadius: 12, background: s.color, color: s.textC ?? '#fff', display: 'grid', placeItems: 'center', ...KAN, fontWeight: 700, fontSize: 17, flexShrink: 0 }}>
@@ -239,40 +191,9 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Batch upload mockup */}
+            {/* Batch scan pile demo */}
             <div style={{ position: 'relative' }}>
-              <div style={{ background: '#1c1b24', borderRadius: 28, boxShadow: '0 32px 80px -20px rgba(28,27,36,.5)', padding: '18px 20px 22px', maxWidth: 380, margin: '0 auto' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 }}>
-                  {['#ff5f57', '#febc2e', '#28c840'].map(c => <span key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c, display: 'block' }} />)}
-                  <span style={{ ...KAN, fontSize: 13, color: 'rgba(255,255,255,.5)', marginLeft: 8 }}>ตรวจสอบการ์ด — 6 ใบ</span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-                  {[
-                    { bg: 'linear-gradient(135deg,#f97316,#fbbf24)', label: 'Pikachu VMAX', price: '450' },
-                    { bg: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', label: 'Gyarados EX', price: '280' },
-                    { bg: 'linear-gradient(135deg,#dc2626,#f87171)', label: 'Charizard SR', price: '1,200' },
-                    { bg: 'linear-gradient(135deg,#16a34a,#4ade80)', label: 'Venusaur EX', price: '320' },
-                    { bg: 'linear-gradient(135deg,#7c3aed,#c084fc)', label: 'Mewtwo SAR', price: '2,800' },
-                    { bg: 'linear-gradient(135deg,#d97706,#fcd34d)', label: 'Articuno', price: '180' },
-                  ].map((c, i) => (
-                    <div key={i} style={{ borderRadius: 10, overflow: 'hidden', background: 'rgba(255,255,255,.06)' }}>
-                      <div style={{ aspectRatio: '5/7', background: c.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="#ffcb05" stroke="#1c1b24" strokeWidth="1.5"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
-                      </div>
-                      <div style={{ padding: '6px 7px' }}>
-                        <p style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', ...KAN, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.label}</p>
-                        <p style={{ fontSize: 12, color: '#4ade80', ...KAN, fontWeight: 700 }}>฿{c.price}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ width: '100%', marginTop: 14, background: 'var(--ld-red)', color: '#fff', ...KAN, fontWeight: 600, fontSize: 15, padding: '12px', borderRadius: 12, textAlign: 'center' }}>
-                  ✓ ขึ้นขายทั้งหมด 6 ใบ
-                </div>
-              </div>
-              <div style={{ position: 'absolute', top: -14, right: -10, background: '#fff', borderRadius: 14, padding: '10px 16px', boxShadow: '0 10px 28px -8px rgba(28,27,36,.4)', ...KAN, fontSize: 14, fontWeight: 600, color: 'var(--ld-ink)' }}>
-                🚀 ลงขายใน 3 นาที
-              </div>
+              <BatchScanDemo variant="pile" />
             </div>
           </div>
         </div>
@@ -282,45 +203,9 @@ export default function LandingPage() {
       <section style={{ background: 'var(--ld-paper)', padding: '80px 0' }}>
         <div style={{ maxWidth: 'var(--ld-maxw)', margin: '0 auto', padding: '0 24px' }}>
           <div className="grid md:grid-cols-2 gap-16 items-center">
-            {/* Shop mockup */}
-            <div style={{ position: 'relative' }}>
-              <div style={{ background: '#f8f7f5', borderRadius: 28, border: '1.5px solid var(--ld-line)', boxShadow: 'var(--ld-shadow)', padding: '18px 18px 22px', maxWidth: 360, margin: '0 auto' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                  <span style={{ width: 32, height: 32, borderRadius: 10, background: 'var(--ld-red)', display: 'grid', placeItems: 'center', fontSize: 16, flexShrink: 0 }}>🃏</span>
-                  <div>
-                    <p style={{ ...KAN, fontWeight: 600, fontSize: 14 }}>ร้านการ์ดสุดโง่</p>
-                    <p style={{ fontSize: 11, color: 'var(--ld-muted)' }}>lalens.com/r/card-shop</p>
-                  </div>
-                  <div style={{ marginLeft: 'auto', background: 'var(--ld-red)', color: '#fff', borderRadius: 20, padding: '4px 12px', fontSize: 13, ...KAN, fontWeight: 600 }}>
-                    🛒 2
-                  </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-                  {[
-                    { bg: 'linear-gradient(135deg,#f97316,#fbbf24)', sel: true, price: '450', label: 'Pikachu' },
-                    { bg: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', sel: false, price: '280', label: 'Gyarados' },
-                    { bg: 'linear-gradient(135deg,#dc2626,#f87171)', sel: true, price: '1,200', label: 'Charizard' },
-                    { bg: 'linear-gradient(135deg,#16a34a,#4ade80)', sel: false, price: '320', label: 'Venusaur' },
-                    { bg: 'linear-gradient(135deg,#7c3aed,#c084fc)', sel: false, price: '2,800', label: 'Mewtwo' },
-                    { bg: 'linear-gradient(135deg,#d97706,#fcd34d)', sel: false, price: '180', label: 'Articuno' },
-                  ].map((c, i) => (
-                    <div key={i} style={{ borderRadius: 8, overflow: 'hidden', border: c.sel ? '2px solid var(--ld-red)' : '1.5px solid var(--ld-line)', boxShadow: c.sel ? '0 0 10px rgba(238,28,37,.2)' : 'none' }}>
-                      <div style={{ aspectRatio: '5/7', background: c.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#ffcb05" stroke="#1c1b24" strokeWidth="1.5"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
-                        {c.sel && <span style={{ position: 'absolute', top: 3, right: 3, width: 16, height: 16, background: 'var(--ld-red)', borderRadius: '50%', display: 'grid', placeItems: 'center', fontSize: 9, color: '#fff', fontWeight: 700 }}>✓</span>}
-                      </div>
-                      <div style={{ padding: '4px 5px', background: '#fff' }}>
-                        <p style={{ fontSize: 9, color: 'var(--ld-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.label}</p>
-                        <p style={{ fontSize: 11, color: 'var(--ld-red)', ...KAN, fontWeight: 700 }}>฿{c.price}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ marginTop: 12, display: 'flex', gap: 8, borderTop: '1px solid var(--ld-line)', paddingTop: 12, alignItems: 'center' }}>
-                  <span style={{ flex: 1, ...KAN, fontWeight: 600, fontSize: 14 }}>รวม ฿1,650</span>
-                  <span style={{ background: 'var(--ld-red)', color: '#fff', ...KAN, fontWeight: 600, fontSize: 13, padding: '7px 16px', borderRadius: 999 }}>ชำระเงิน</span>
-                </div>
-              </div>
+            {/* Interactive shop mockup */}
+            <div>
+              <TapToBuyDemo />
             </div>
 
             {/* Text */}
@@ -331,11 +216,11 @@ export default function LandingPage() {
                 <span style={{ color: 'var(--ld-red)' }}>หยิบใส่ตะกร้าได้เลย</span>
               </h2>
               <p style={{ fontSize: 18, color: 'var(--ld-muted)', marginTop: 16, lineHeight: 1.65 }}>
-                ไม่ต้องคอมเมนต์จองให้สับสน ไม่ต้องทักทุกคนรอดออบ — เลือกของแล้วจ่ายจบในเว็บเลย
+                ไม่ต้องคอมเมนต์จองให้สับสน ไม่ต้องทักแชทรอตอบ — เลือกของแล้วจ่ายจบในเว็บเลย
               </p>
               <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {[
-                  { icon: '👆', title: 'แตะการ์ดที่ยากได้', desc: 'เปิดลิงก์ร้านตรงรูปเพื่อเพิ่มทุกใบลงตะกร้า แล้วหยิบใส่ตะกร้า' },
+                  { icon: '👆', title: 'แตะการ์ดที่อยากได้', desc: 'เปิดลิงก์ร้านตรงรูปเพื่อเพิ่มทุกใบลงตะกร้า แล้วหยิบใส่ตะกร้า' },
                   { icon: '📱', title: 'แนบสลิปในเว็บ', desc: 'โอนเข้าบัญชีร้านโดยตรง แล้วแนบสลิป ระบบตรวจ QR เทียบบัญชี+ยอดอัตโนมัติ' },
                   { icon: '✅', title: 'ผ่านแล้วตัดสต็อก', desc: 'ของทุกใบมี ID เดียว ล็อกตั้งแต่เริ่มจ่าย ไม่มีเคสจ่ายแล้วของหาย' },
                 ].map(f => (
@@ -352,7 +237,7 @@ export default function LandingPage() {
               </div>
               <p style={{ marginTop: 22, fontSize: 14, color: 'var(--ld-muted)', display: 'flex', alignItems: 'center', gap: 7 }}>
                 <span style={{ color: 'var(--ld-red)' }}>⏱</span>
-                จองปุ่งล็อกอัตโนมัติ 10 นาที คนอื่นแย่งไม่ได้แน่นอนตลอดระหว่างจ่าย
+                จองปุ๊บล็อกราคาให้ 10 นาที กันโดนแย่งและกันราคาเปลี่ยนระหว่างจ่าย
               </p>
             </div>
           </div>
@@ -373,7 +258,7 @@ export default function LandingPage() {
               { ico: '📋', bg: 'var(--ld-red)',    tc: '#fff', title: 'ตรวจสลิปอัตโนมัติ',     desc: 'อ่าน QR สลิป เทียบบัญชีร้าน+ยอดให้ทันที สลิปปลอม/ซ้ำ/ผิดบัญชี ไม่ผ่าน' },
               { ico: '🔒', bg: 'var(--ld-blue)',   tc: '#fff', title: 'ล็อกสต็อกกันขายซ้ำ',    desc: 'การ์ดทุกใบมี ID เดียว ล็อกตั้งแต่เริ่ม checkout ไม่มีเคสจ่ายแล้วของหาย' },
               { ico: '🔔', bg: 'var(--ld-yellow)', tc: 'var(--ld-ink)', title: 'แจ้งเตือนทันใจ', desc: 'ออเดอร์ใหม่/อัปเดตสถานะ เด้งทั้งในเว็บและอีเมล ไม่พลาดดีล' },
-              { ico: '🔗', bg: 'var(--ld-red)',    tc: '#fff', title: 'หน้าร้าน 1 ลิงก์',      desc: 'แชร์ลิงก์เดียวเห็นของทั้งร้าน พร้อม preview สวยเวลาโพสต์ลงเฟซ' },
+              { ico: '🔗', bg: 'var(--ld-red)',    tc: '#fff', title: 'หน้าร้าน 1 ลิงก์',      desc: 'แชร์ลิงก์เดียวเห็นของทั้งร้าน พร้อม preview สวยเวลาแชร์ลงโซเชียล' },
               { ico: '✏️', bg: 'var(--ld-blue)',   tc: '#fff', title: 'จัดการของง่าย',          desc: 'แก้ราคา/จำนวน เติมของใหม่ กด "ขายแล้ว" เกรย์ใบทันทีถ้าขายที่อื่น' },
               { ico: '💵', bg: 'var(--ld-yellow)', tc: 'var(--ld-ink)', title: 'เงินเข้าบัญชีคุณตรง', desc: 'ผูกบัญชีตั้งแต่สมัคร ผู้ซื้อโอนตรง เราไม่ถือเงินใครสักบาท' },
             ].map(f => (
@@ -396,28 +281,46 @@ export default function LandingPage() {
           <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 48px' }}>
             <Chip color="red">✦ เทียบกันชัดๆ</Chip>
             <h2 style={{ ...KAN, fontWeight: 700, fontSize: 'clamp(28px, 4vw, 46px)', lineHeight: 1.12, marginTop: 18 }}>
-              ทำไมถึงดีกว่าโพสต์ขายในเฟซ
+              เทียบกับการขายแบบเดิมๆ
             </h2>
           </div>
-          <div style={{ maxWidth: 900, margin: '0 auto', background: '#fff', border: '2px solid var(--ld-ink)', borderRadius: 24, overflow: 'hidden', boxShadow: '0 16px 0 -6px var(--ld-yellow)' }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', background: '#fff', border: '2px solid var(--ld-ink)', borderRadius: 24, overflow: 'hidden', boxShadow: '0 18px 0 -6px var(--ld-yellow)' }}>
+            {/* Header row — 3 cols always */}
             <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr', background: 'var(--ld-ink)', color: '#fff' }}>
               <div style={{ padding: '18px 22px' }} />
-              <div style={{ padding: '18px 22px', textAlign: 'center', color: 'rgba(255,255,255,.6)', ...KAN, fontWeight: 600, fontSize: 15 }}>โพสต์ในเฟซ</div>
-              <div style={{ padding: '18px 22px', background: 'var(--ld-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, ...KAN, fontWeight: 600, fontSize: 15 }}>
+              <div style={{ padding: '18px 22px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,.65)', ...KAN, fontWeight: 600, fontSize: 'clamp(12px,1.4vw,15px)' }}>ขายแบบเดิม</div>
+              <div style={{ padding: '18px 22px', background: 'var(--ld-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, ...KAN, fontWeight: 600, fontSize: 'clamp(12px,1.4vw,15px)' }}>
                 <LogoIcon size={20} /> ละเล่น
               </div>
             </div>
             {[
-              { label: 'ลงขายหลายใบ',     fb: '✕ พิมพ์โพสต์ทีละใบ จนนิ้วล้า',     us: '✓ ถ่ายรูปเดียว ระบบตัดกรอบให้' },
-              { label: 'ผู้ซื้อหยิบของ',  fb: '✕ คอมเมนต์จอง สับสนว่าใครได้',    us: '✓ แตะการ์ดในรูป เข้าตะกร้าเลย' },
-              { label: 'ตรวจการจ่ายเงิน', fb: '✕ เปิดสลิปไล่เช็คเอง',              us: '✓ ตรวจ QR อัตโนมัติใน 2 วิ' },
-              { label: 'กันขายซ้ำ 2 คน',  fb: '✕ พลาดบ่อย ต้องคืนเงิน',           us: '✓ ล็อกสต็อกอัตโนมัติ' },
-              { label: 'ค่าใช้จ่าย',      fb: '✕ ฟรีแต่วุ่นวาย',                  us: '✓ ฟรีช่วงเปิดตัว แถมเป็นระบบ' },
+              { label: 'ลงขายหลายใบ',     fb: 'พิมพ์ทีละใบ จนนิ้วล้า',       us: 'ถ่ายรูปเดียว ระบบตัดกรอบให้' },
+              { label: 'ผู้ซื้อหยิบของ',  fb: 'คอมเมนต์จอง สับสนว่าใครได้',  us: 'แตะการ์ดในรูป เข้าตะกร้าเลย' },
+              { label: 'ตรวจการจ่ายเงิน', fb: 'เปิดสลิปไล่เช็คเอง',            us: 'ตรวจ QR อัตโนมัติใน 2 วิ'    },
+              { label: 'กันขายซ้ำ 2 คน',  fb: 'พลาดบ่อย ต้องคืนเงิน',         us: 'ล็อกสต็อกอัตโนมัติ'          },
+              { label: 'จัดการออเดอร์',   fb: 'ต้องจัดการเอง',                 us: 'ระบบสรุปให้ครบ'              },
             ].map((row, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr', borderTop: '1.5px solid var(--ld-line)' }}>
-                <div style={{ padding: '17px 22px', ...KAN, fontWeight: 600, fontSize: 15.5 }}>{row.label}</div>
-                <div style={{ padding: '17px 22px', textAlign: 'center', fontSize: 14, color: 'var(--ld-muted)' }}>{row.fb}</div>
-                <div style={{ padding: '17px 22px', textAlign: 'center', fontSize: 14, color: 'var(--ld-red)', fontWeight: 500, background: 'var(--ld-tint-red)' }}>{row.us}</div>
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr', borderTop: '1.5px solid var(--ld-line)', alignItems: 'center' }}>
+                {/* Label */}
+                <div style={{ padding: 'clamp(12px,1.8vw,17px) clamp(12px,1.8vw,22px)', ...KAN, fontWeight: 600, fontSize: 'clamp(12px,1.4vw,15.5px)' }}>{row.label}</div>
+                {/* FB */}
+                <div style={{ padding: 'clamp(12px,1.8vw,17px) clamp(8px,1.4vw,22px)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontSize: 'clamp(11px,1.3vw,15px)', color: 'var(--ld-muted)', textAlign: 'center' }}>
+                  <span style={{ display: 'inline-flex', flexShrink: 0 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m6 6 12 12M18 6 6 18" />
+                    </svg>
+                  </span>
+                  {row.fb}
+                </div>
+                {/* ละเล่น */}
+                <div style={{ padding: 'clamp(12px,1.8vw,17px) clamp(8px,1.4vw,22px)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontSize: 'clamp(11px,1.3vw,15px)', fontWeight: 500, background: 'var(--ld-tint-red)', color: 'var(--ld-ink)', textAlign: 'center' }}>
+                  <span style={{ display: 'inline-flex', flexShrink: 0, color: 'var(--ld-red)' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m4.5 12.5 5 5 10-11" />
+                    </svg>
+                  </span>
+                  {row.us}
+                </div>
               </div>
             ))}
           </div>
@@ -427,13 +330,13 @@ export default function LandingPage() {
       {/* ─── TRUST SECTION ──────────────────────────────────── */}
       <section id="trust" style={{ background: 'var(--ld-warm)', padding: '0 0 80px' }}>
         <div style={{ maxWidth: 'var(--ld-maxw)', margin: '0 auto', padding: '0 24px' }}>
-          <div style={{ background: 'var(--ld-ink)', borderRadius: 32, padding: '56px 48px', position: 'relative', overflow: 'hidden' }}>
+          <div className="px-5 py-10 md:px-12 md:py-14" style={{ background: 'var(--ld-ink)', borderRadius: 32, position: 'relative', overflow: 'hidden' }}>
             <div aria-hidden style={{ position: 'absolute', top: -60, right: -60, width: 240, height: 240, borderRadius: '50%', background: 'rgba(255,255,255,.04)' }} />
             <div aria-hidden style={{ position: 'absolute', bottom: -80, right: 80, width: 180, height: 180, borderRadius: '50%', background: 'rgba(255,255,255,.03)' }} />
 
             <Chip color="ink">
               <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 1.5l2.39 4.84 5.35.78-3.87 3.77.91 5.32L10 13.77l-4.78 2.44.91-5.32L2.26 7.12l5.35-.78L10 1.5z" clipRule="evenodd" /></svg>
-              โปร่งใส ตรงโปรงมา
+              โปร่งใส ตรงไปตรงมา
             </Chip>
 
             <h2 style={{ ...KAN, color: '#fff', fontSize: 'clamp(26px, 3.6vw, 40px)', fontWeight: 700, marginTop: 22, lineHeight: 1.15, maxWidth: 560 }}>

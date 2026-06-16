@@ -4,25 +4,71 @@ export const dynamic = 'force-dynamic'
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Button, Input, Select, Divider } from '@/components/ui'
 import { AuthLayout } from '@/components/layout/AuthLayout'
+import { translateAuthError } from '@/lib/translate-error'
 
-const BANKS = ['กสิกรไทย (KBANK)','กรุงเทพ (BBL)','ไทยพาณิชย์ (SCB)','กรุงไทย (KTB)','กรุงศรี (BAY)','ทหารไทยธนชาต (TTB)','ออมสิน','ธ.ก.ส.','พร้อมเพย์']
+const S: Record<string, React.CSSProperties> = {
+  back:    { display: 'inline-flex', alignItems: 'center', gap: 7, fontFamily: '"Kanit",sans-serif', fontWeight: 500, fontSize: 13.5, color: '#6b6a76', textDecoration: 'none', marginBottom: 18 },
+  head:    { fontFamily: '"Kanit",sans-serif', fontWeight: 700, fontSize: 30, color: '#1c1b24', lineHeight: 1.1, margin: 0 },
+  sub:     { fontSize: 15.5, color: '#6b6a76', marginTop: 8 },
+  google:  { width: '100%', marginTop: 20, border: '1.5px solid #ededf0', background: '#fff', borderRadius: 14, padding: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 11, fontFamily: '"Kanit",sans-serif', fontWeight: 600, fontSize: 15.5, color: '#1c1b24', cursor: 'pointer', transition: '.13s' },
+  orWrap:  { display: 'flex', alignItems: 'center', gap: 13, margin: '15px 0', color: '#6b6a76', fontSize: 12.5, fontFamily: '"Kanit",sans-serif', whiteSpace: 'nowrap' as const },
+  orLine:  { flex: 1, height: 1.5, background: '#ededf0' },
+  label:   { display: 'block', fontFamily: '"Kanit",sans-serif', fontWeight: 500, fontSize: 13.5, marginBottom: 7, color: '#1c1b24' },
+  req:     { color: '#ee1c25' },
+  input:   { width: '100%', border: '1.5px solid #ededf0', borderRadius: 13, padding: '14px 15px', fontSize: 15.5, color: '#1c1b24', background: '#faf9f7', outline: 'none', transition: '.12s', boxSizing: 'border-box' as const },
+  inputPR: { width: '100%', border: '1.5px solid #ededf0', borderRadius: 13, padding: '14px 62px 14px 15px', fontSize: 15.5, color: '#1c1b24', background: '#faf9f7', outline: 'none', transition: '.12s', boxSizing: 'border-box' as const },
+  eyeBtn:  { position: 'absolute' as const, right: 8, top: '50%', transform: 'translateY(-50%)', height: 32, padding: '0 10px', border: 'none', background: 'none', color: '#2a75bb', fontFamily: '"Kanit",sans-serif', fontWeight: 600, fontSize: 12.5, cursor: 'pointer', borderRadius: 9 },
+  hint:    { fontSize: 12, color: '#6b6a76', marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 },
+  hintOk:  { fontSize: 12, color: '#2e9e4f', marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 },
+  hintBad: { fontSize: 12, color: '#ee1c25', marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 },
+  submit:  { width: '100%', marginTop: 18, border: 'none', background: '#ee1c25', color: '#fff', fontFamily: '"Kanit",sans-serif', fontWeight: 600, fontSize: 18, padding: 16, borderRadius: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, cursor: 'pointer', boxShadow: '0 5px 0 #c0141b', transition: 'transform .12s, box-shadow .12s' },
+  submitD: { width: '100%', marginTop: 18, border: 'none', background: '#e6e3df', color: '#6b6a76', fontFamily: '"Kanit",sans-serif', fontWeight: 600, fontSize: 18, padding: 16, borderRadius: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, cursor: 'default', boxShadow: 'none' },
+  terms:   { fontSize: 11.5, color: '#6b6a76', textAlign: 'center' as const, marginTop: 18, lineHeight: 1.55 },
+  termsA:  { color: '#2a75bb', textDecoration: 'underline' },
+  switch:  { textAlign: 'center' as const, fontSize: 14, color: '#6b6a76', marginTop: 20, paddingTop: 18, borderTop: '1.5px solid #ededf0' },
+  switchB: { color: '#ee1c25', fontFamily: '"Kanit",sans-serif', fontWeight: 600, textDecoration: 'none' },
+  // success
+  doneWrap:{ textAlign: 'center' as const, display: 'flex', flexDirection: 'column' as const, alignItems: 'center' },
+  doneCirc:{ width: 84, height: 84, borderRadius: '50%', background: '#2e9e4f', color: '#fff', display: 'grid', placeItems: 'center', boxShadow: '0 12px 28px -8px rgba(46,158,79,.5)', marginBottom: 18 },
+  doneH2:  { fontFamily: '"Kanit",sans-serif', fontWeight: 700, fontSize: 27, margin: 0, color: '#1c1b24' },
+  doneP:   { fontSize: 15, color: '#6b6a76', marginTop: 10, maxWidth: '24em', lineHeight: 1.6 },
+  doneCTA: { width: '100%', marginTop: 26, border: 'none', background: '#ee1c25', color: '#fff', fontFamily: '"Kanit",sans-serif', fontWeight: 600, fontSize: 18, padding: 16, borderRadius: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, cursor: 'pointer', boxShadow: '0 5px 0 #c0141b', textDecoration: 'none' },
+}
+
+function GoogleIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden>
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 4.5 29.3 2.5 24 2.5 12.1 2.5 2.5 12.1 2.5 24S12.1 45.5 24 45.5 45.5 35.9 45.5 24c0-1.2-.1-2.4-.4-3.5z"/>
+      <path fill="#FF3D00" d="M5.3 14.7l6.6 4.8C13.6 15.4 18.4 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6 29.3 4 24 4 16 4 9.1 8.6 5.3 14.7z" transform="translate(0 -1.5)"/>
+      <path fill="#4CAF50" d="M24 45.5c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-2 1.5-4.6 2.4-7.2 2.4-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9 41 16 45.5 24 45.5z"/>
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.5l6.2 5.2c-.4.4 6.6-4.8 6.6-14.7 0-1.2-.1-2.4-.4-3.5z"/>
+    </svg>
+  )
+}
+
+function CheckIcon({ size = 13 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m4.5 12.5 5 5 10-11"/></svg>
+}
+function XIcon({ size = 13 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
+}
 
 export default function RegisterPage() {
-  const router = useRouter()
-  const [step, setStep] = useState<'account' | 'shop'>('account')
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [shopName, setShopName] = useState('')
-  const [shopSlug, setShopSlug] = useState('')
-  const [bankName, setBankName] = useState('')
-  const [bankAccount, setBankAccount] = useState('')
+  const [pw, setPw] = useState('')
+  const [pw2, setPw2] = useState('')
+  const [show, setShow] = useState(false)
+  const [touched, setTouched] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [done, setDone] = useState(false)
+
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  const pwOk = pw.length >= 8
+  const pw2Ok = pw2.length > 0 && pw2 === pw
+  const canSubmit = emailOk && pwOk && pw2Ok
 
   async function handleGoogle() {
     const supabase = createClient()
@@ -32,171 +78,139 @@ export default function RegisterPage() {
     })
   }
 
-  async function handleStep1(e: React.FormEvent) {
-    e.preventDefault()
-    setError('')
-    if (password !== confirmPassword) { setError('รหัสผ่านไม่ตรงกัน'); return }
-    if (password.length < 8) { setError('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร'); return }
-    setStep('shop')
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setTouched(true)
+    if (!canSubmit) return
     setError('')
-    if (!shopName || !shopSlug || !bankName || !bankAccount) {
-      setError('กรุณากรอกข้อมูลให้ครบ'); return
-    }
-    if (!/^[a-z0-9-]+$/.test(shopSlug)) {
-      setError('Shop URL ใช้ได้เฉพาะ a-z, 0-9 และ - เท่านั้น'); return
-    }
-
     setLoading(true)
     const supabase = createClient()
-    const { data, error: signUpError } = await supabase.auth.signUp({ email, password })
-    if (signUpError) { setError(signUpError.message); setLoading(false); return }
-
-    const userId = data.user?.id
-    if (!userId) { setError('สมัครสมาชิกไม่สำเร็จ'); setLoading(false); return }
-
-    // Sign in immediately so the session is active before inserting shop
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
-    if (signInError) { setError(signInError.message); setLoading(false); return }
-
-    const { error: shopError } = await supabase.from('shops').insert({
-      owner_id: userId,
-      name: shopName,
-      slug: shopSlug,
-      bank_name: bankName,
-      bank_account_encrypted: bankAccount, // TODO: encrypt before storing
-    })
-
+    const { error: err } = await supabase.auth.signUp({ email, password: pw })
     setLoading(false)
-    if (shopError) {
-      setError(shopError.code === '23505' ? 'Shop URL นี้ถูกใช้ไปแล้ว กรุณาเลือก URL อื่น' : shopError.message)
-      return
-    }
-    router.push('/dashboard')
+    if (err) { setError(translateAuthError(err.message)); return }
+    setDone(true)
+  }
+
+  if (done) {
+    return (
+      <AuthLayout mode="signup">
+        <div style={S.doneWrap}>
+          <div style={S.doneCirc}>
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m4.5 12.5 5 5 10-11"/>
+            </svg>
+          </div>
+          <h2 style={S.doneH2}>สมัครสำเร็จ 🎉</h2>
+          <p style={S.doneP}>ยินดีต้อนรับสู่ ละเล่น! ขั้นต่อไปคือตั้งชื่อร้านและผูกบัญชีรับเงิน แล้วเริ่มลงขายได้เลย</p>
+          <Link href="/dashboard/setup" style={S.doneCTA}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            ไปตั้งค่าร้านต่อ
+          </Link>
+          <p style={{ ...S.switch, border: 'none', marginTop: 14 }}>สมัครด้วย <b style={{ color: '#1c1b24' }}>{email}</b></p>
+        </div>
+      </AuthLayout>
+    )
   }
 
   return (
-    <AuthLayout
-      subtitle="เปิดร้านขายการ์ดฟรี — ใช้เวลาแค่ 2 นาที"
-      footer={
-        <p className="text-center text-zinc-500 text-sm">
-          มีบัญชีอยู่แล้ว?{' '}
-          <Link href="/login" className="text-violet-400 hover:text-violet-300 font-semibold">เข้าสู่ระบบ</Link>
-        </p>
-      }
-    >
-      {/* Step indicator */}
-      <div className="flex items-center gap-3 mb-6">
-        {['สร้างบัญชี', 'ตั้งค่าร้าน'].map((label, i) => (
-          <div key={i} className="flex items-center gap-2 flex-1">
-            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all ${
-              i === 0 && step === 'account' ? 'bg-gradient-to-br from-brand-start to-brand-end text-white' :
-              i === 0 && step === 'shop'    ? 'bg-emerald-500 text-white' :
-              i === 1 && step === 'shop'    ? 'bg-gradient-to-br from-brand-start to-brand-end text-white' :
-              'bg-zinc-800 text-zinc-500'
-            }`}>
-              {i === 0 && step === 'shop' ? '✓' : i + 1}
-            </div>
-            <span className={`text-sm font-medium ${
-              (i === 0 && step === 'account') || (i === 1 && step === 'shop') ? 'text-white' : 'text-zinc-500'
-            }`}>{label}</span>
-            {i === 0 && <div className="flex-1 h-px bg-border" />}
-          </div>
-        ))}
+    <AuthLayout mode="signup">
+      <Link href="/" style={S.back}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'scaleX(-1)' }}><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        กลับหน้าแรก
+      </Link>
+
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={S.head}>สมัครเปิดร้าน</h2>
+        <p style={S.sub}>สมัครฟรี ลงขายได้ทั้งกองในไม่กี่นาที</p>
       </div>
 
-      <div className="bg-surface-raised border border-border rounded-2xl p-8">
-        {step === 'account' && (
-          <>
-            <Button variant="secondary" className="w-full mb-0" onClick={handleGoogle}>
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-              </svg>
-              สมัครด้วย Google
-            </Button>
+      <button style={S.google} onClick={handleGoogle}>
+        <GoogleIcon/> สมัครด้วย Google
+      </button>
 
-            <Divider />
+      <div style={S.orWrap}>
+        <span style={S.orLine}/> หรือสมัครด้วยอีเมล <span style={S.orLine}/>
+      </div>
 
-            <form onSubmit={handleStep1} className="space-y-4">
-              <Input label="อีเมล" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required />
-              <Input label="รหัสผ่าน" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="อย่างน้อย 8 ตัวอักษร" required />
-              <Input label="ยืนยันรหัสผ่าน" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" required />
-              {error && <p className="text-red-400 text-sm">{error}</p>}
-              <Button type="submit" className="w-full">ถัดไป →</Button>
-            </form>
-          </>
-        )}
+      <form onSubmit={handleSubmit} noValidate>
+        {/* Email */}
+        <div style={{ marginBottom: 13 }}>
+          <label style={S.label}>อีเมล <span style={S.req}>*</span></label>
+          <input
+            style={S.input}
+            type="email"
+            inputMode="email"
+            placeholder="you@email.com"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            onBlur={() => setTouched(true)}
+            onFocus={e => { e.currentTarget.style.borderColor = '#ee1c25'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(238,28,37,.1)' }}
+            onBlurCapture={e => { e.currentTarget.style.borderColor = '#ededf0'; e.currentTarget.style.background = '#faf9f7'; e.currentTarget.style.boxShadow = 'none' }}
+          />
+          {touched && email && !emailOk && (
+            <div style={S.hintBad}><XIcon/> รูปแบบอีเมลไม่ถูกต้อง</div>
+          )}
+        </div>
 
-        {step === 'shop' && (
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <Input
-              label="ชื่อร้าน"
-              value={shopName}
-              onChange={e => {
-                setShopName(e.target.value)
-                if (!shopSlug) setShopSlug(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
-              }}
-              placeholder="เช่น Pikachu Store"
-              required
+        {/* Password */}
+        <div style={{ marginBottom: 8 }}>
+          <label style={S.label}>รหัสผ่าน <span style={S.req}>*</span></label>
+          <div style={{ position: 'relative' }}>
+            <input
+              style={S.inputPR}
+              type={show ? 'text' : 'password'}
+              placeholder="อย่างน้อย 8 ตัวอักษร"
+              value={pw}
+              onChange={e => setPw(e.target.value)}
+              onBlur={() => setTouched(true)}
+              onFocus={e => { e.currentTarget.style.borderColor = '#ee1c25'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(238,28,37,.1)' }}
+              onBlurCapture={e => { e.currentTarget.style.borderColor = '#ededf0'; e.currentTarget.style.background = '#faf9f7'; e.currentTarget.style.boxShadow = 'none' }}
             />
+            <button type="button" style={S.eyeBtn} onClick={() => setShow(s => !s)}>
+              {show ? 'ซ่อน' : 'แสดง'}
+            </button>
+          </div>
+          {pw && !pwOk
+            ? <div style={S.hintBad}><XIcon/> ต้องมีอย่างน้อย 8 ตัวอักษร</div>
+            : pwOk
+              ? <div style={S.hintOk}><CheckIcon/> รหัสผ่านใช้ได้</div>
+              : <div style={S.hint}>อย่างน้อย 8 ตัวอักษร</div>}
+        </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-zinc-300">Shop URL</label>
-              <div className="flex items-center bg-surface-raised border border-border-input rounded-xl overflow-hidden focus-within:border-violet-500 transition">
-                <span className="px-4 text-zinc-500 text-sm border-r border-border py-3 flex-shrink-0">lalens.com/</span>
-                <input
-                  value={shopSlug}
-                  onChange={e => setShopSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                  required
-                  className="flex-1 bg-transparent px-3 py-3 text-white placeholder-zinc-500 focus:outline-none text-sm"
-                  placeholder="pikachu-store"
-                />
-              </div>
-              <p className="text-xs text-zinc-600">ใช้ได้เฉพาะ a-z, 0-9 และ -</p>
-            </div>
+        {/* Confirm password */}
+        <div style={{ marginBottom: 8 }}>
+          <label style={S.label}>ยืนยันรหัสผ่าน <span style={S.req}>*</span></label>
+          <input
+            style={S.input}
+            type={show ? 'text' : 'password'}
+            placeholder="พิมพ์รหัสผ่านอีกครั้ง"
+            value={pw2}
+            onChange={e => setPw2(e.target.value)}
+            onBlur={() => setTouched(true)}
+            onFocus={e => { e.currentTarget.style.borderColor = '#ee1c25'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(238,28,37,.1)' }}
+            onBlurCapture={e => { e.currentTarget.style.borderColor = '#ededf0'; e.currentTarget.style.background = '#faf9f7'; e.currentTarget.style.boxShadow = 'none' }}
+          />
+          {pw2 && pw2 !== pw
+            ? <div style={S.hintBad}><XIcon/> รหัสผ่านไม่ตรงกัน</div>
+            : pw2Ok
+              ? <div style={S.hintOk}><CheckIcon/> รหัสผ่านตรงกัน</div>
+              : <div style={S.hint}>พิมพ์รหัสผ่านเดิมอีกครั้งเพื่อยืนยัน</div>}
+        </div>
 
-            <div className="border-t border-border pt-5">
-              <p className="text-sm font-semibold text-zinc-300 mb-4">บัญชีรับเงิน <span className="text-violet-400">(บังคับ)</span></p>
-              <div className="space-y-3">
-                <Select label="ธนาคาร" value={bankName} onChange={e => setBankName(e.target.value)} required>
-                  <option value="">เลือกธนาคาร</option>
-                  {BANKS.map(b => <option key={b} value={b}>{b}</option>)}
-                </Select>
-                <Input
-                  label="เลขบัญชี / เบอร์พร้อมเพย์"
-                  value={bankAccount}
-                  onChange={e => setBankAccount(e.target.value.replace(/\D/g, ''))}
-                  placeholder="0000000000"
-                  required
-                />
-              </div>
-              <p className="text-xs text-zinc-600 mt-2 leading-relaxed">
-                ใช้สำหรับตรวจสอบสลิปอัตโนมัติ — เงินผู้ซื้อโอนตรงเข้าบัญชีนี้ ไม่ผ่าน Lalens
-              </p>
-            </div>
+        {error && <p style={{ ...S.hintBad, marginBottom: 0 }}>{error}</p>}
 
-            {error && <p className="text-red-400 text-sm">{error}</p>}
+        <button type="submit" style={canSubmit ? S.submit : S.submitD} disabled={!canSubmit || loading}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          {loading ? 'กำลังสมัคร...' : 'สมัครด้วยอีเมล'}
+        </button>
 
-            <div className="flex gap-3 pt-1">
-              <Button variant="secondary" type="button" onClick={() => { setStep('account'); setError('') }}>
-                ← ย้อนกลับ
-              </Button>
-              <Button type="submit" className="flex-1" loading={loading}>
-                {loading ? 'กำลังสร้างร้าน...' : '🚀 เปิดร้านเลย'}
-              </Button>
-            </div>
-          </form>
-        )}
-      </div>
+        <p style={S.terms}>
+          การสมัครถือว่ายอมรับ <a href="#" style={S.termsA}>ข้อกำหนด</a> และ <a href="#" style={S.termsA}>นโยบายความเป็นส่วนตัว</a> (PDPA)
+        </p>
+      </form>
 
-      <p className="text-center text-zinc-700 text-xs mt-4 leading-relaxed px-4">
-        การสมัครสมาชิกถือว่ายอมรับ Terms of Service และ Privacy Policy ของ Lalens
+      <p style={S.switch}>
+        มีบัญชีแล้ว? <Link href="/login" style={S.switchB}>เข้าสู่ระบบ</Link>
       </p>
     </AuthLayout>
   )
