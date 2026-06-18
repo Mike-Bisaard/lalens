@@ -521,7 +521,6 @@ function PrimaryBtn({
 export default function ShopSetupPage() {
   const router = useRouter()
   const [isEditMode, setIsEditMode] = useState(false)
-  const [existingShopId, setExistingShopId] = useState<string | null>(null)
 
   const [step, setStep] = useState<1 | 2 | 3>(1)
 
@@ -559,7 +558,6 @@ export default function ShopSetupPage() {
           if (!data) return // new user, stay on setup
           // Existing shop → load into form for editing
           setIsEditMode(true)
-          setExistingShopId(data.id)
           setShopName(data.name ?? '')
           setShopSlug(data.slug ?? '')
           setSlugStatus('ok')
@@ -661,10 +659,21 @@ export default function ShopSetupPage() {
         <div style={{ display: 'flex', flexDirection: 'column', padding: '32px 28px', overflowY: 'auto', background: C.bg }}>
           <div style={{ maxWidth: 404, margin: '0 auto', width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
 
-            {/* Logo (visible on mobile / small screens) */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28 }}>
-              <LalenIcon size={28} />
-              <span style={{ ...KAN, fontWeight: 700, fontSize: 18, color: C.ink }}>ละเล่น</span>
+            {/* Back / skip link */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <LalenIcon size={26} />
+                <span style={{ ...KAN, fontWeight: 700, fontSize: 18, color: C.ink }}>ละเล่น</span>
+              </div>
+              <button
+                onClick={() => router.push('/dashboard')}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, ...KAN, fontWeight: 500, fontSize: 13.5, color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: '6px 4px', borderRadius: 8, transition: 'color .13s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = C.ink)}
+                onMouseLeave={e => (e.currentTarget.style.color = C.muted)}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                {isEditMode ? 'กลับ' : 'ข้ามไปก่อน'}
+              </button>
             </div>
 
             {/* ── Step 1: ข้อมูลร้าน ── */}
