@@ -520,17 +520,8 @@ function PrimaryBtn({
 // ── Main page ─────────────────────────────────────────────────────────
 export default function ShopSetupPage() {
   const router = useRouter()
-
-  // Check auth + existing shop on mount → redirect accordingly
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) { router.replace('/login'); return }
-      supabase.from('shops').select('id').eq('owner_id', user.id).maybeSingle().then(({ data }) => {
-        if (data) router.replace('/dashboard')
-      })
-    })
-  }, [router])
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [existingShopId, setExistingShopId] = useState<string | null>(null)
 
   const [step, setStep] = useState<1 | 2 | 3>(1)
 
@@ -553,6 +544,33 @@ export default function ShopSetupPage() {
   // After success
   const [doneShopName, setDoneShopName] = useState('')
   const [doneSlug, setDoneSlug] = useState('')
+
+  // Check auth + load existing shop if any
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) { router.replace('/login'); return }
+      supabase
+        .from('shops')
+        .select('id, name, slug, bank_name, bank_account_last4, phone, account_holder_name, address')
+        .eq('owner_id', user.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (!data) return // new user, stay on setup
+          // Existing shop → load into form for editing
+          setIsEditMode(true)
+          setExistingShopId(data.id)
+          setShopName(data.name ?? '')
+          setShopSlug(data.slug ?? '')
+          setSlugStatus('ok')
+          setBankName(data.bank_name ?? '')
+          setBankAccount(data.bank_account_last4 ? `•••••${data.bank_account_last4}` : '')
+          setPhone(data.phone ? formatPhone(data.phone) : '')
+          setAccountName(data.account_holder_name ?? '')
+          setAddress(data.address ?? '')
+        })
+    })
+  }, [router])
 
   const checkSlug = useCallback((raw: string) => {
     const clean = raw.toLowerCase().replace(/[^a-z0-9-]/g, '')
@@ -580,7 +598,7 @@ export default function ShopSetupPage() {
   function goToStep2(e: React.FormEvent) {
     e.preventDefault()
     setError('')
-    if (slugStatus !== 'ok') { setError('กรุณารอตรวจสอบลิงก์ร้านให้เสร็จก่อน'); return }
+    if (!isEditMode && slugStatus !== 'ok') { setError('กรุณารอตรวจสอบลิงก์ร้านให้เสร็จก่อน'); return }
     setStep(2)
   }
 
@@ -589,18 +607,21 @@ export default function ShopSetupPage() {
     setError('')
     setLoading(true)
 
+    // Don't send masked bank account (•••••xxxx) back as an update
+    const isMasked = bankAccount.startsWith('•')
+    const body: Record<string, string> = {
+      name: shopName,
+      bank_name: bankName,
+      phone,
+      account_holder_name: accountName,
+      address,
+    }
+    if (!isMasked) body.bank_account = bankAccount
+
     const res = await fetch('/api/shops', {
-      method: 'POST',
+      method: isEditMode ? 'PATCH' : 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: shopName,
-        slug: shopSlug,
-        bank_name: bankName,
-        bank_account: bankAccount,
-        phone,
-        account_holder_name: accountName,
-        address,
-      }),
+      body: JSON.stringify(isEditMode ? body : { ...body, slug: shopSlug }),
     })
 
     setLoading(false)
@@ -650,8 +671,12 @@ export default function ShopSetupPage() {
             {step === 1 && (
               <form onSubmit={goToStep2} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <Stepper step={1} />
-                <h2 style={{ ...KAN, fontWeight: 700, fontSize: 30, color: C.ink, margin: '0 0 6px' }}>ตั้งค่าร้านของคุณ</h2>
-                <p style={{ ...ANU, fontSize: 15.5, color: C.muted, margin: '0 0 22px' }}>ตั้งชื่อและเลือกลิงก์ร้าน เปลี่ยนทีหลังได้</p>
+                <h2 style={{ ...KAN, fontWeight: 700, fontSize: 30, color: C.ink, margin: '0 0 6px' }}>
+                  {isEditMode ? 'แก้ไขข้อมูลร้าน' : 'ตั้งค่าร้านของคุณ'}
+                </h2>
+                <p style={{ ...ANU, fontSize: 15.5, color: C.muted, margin: '0 0 22px' }}>
+                  {isEditMode ? 'แก้ชื่อร้านหรืออัปโหลดโลโก้ได้ที่นี่' : 'ตั้งชื่อและเลือกลิงก์ร้าน เปลี่ยนทีหลังได้'}
+                </p>
 
                 {/* Shop name */}
                 <div style={{ marginBottom: 13 }}>
@@ -659,14 +684,24 @@ export default function ShopSetupPage() {
                   <TextInput value={shopName} onChange={handleNameChange} placeholder="เช่น ร้านการ์ดลุงโต้ง" required />
                 </div>
 
-                {/* Slug */}
+                {/* Slug — read-only when editing */}
                 <div style={{ marginBottom: 13 }}>
                   <FieldLabel text="ลิงก์ร้าน (URL)" required />
-                  <SlugInput value={shopSlug} onChange={checkSlug} status={slugStatus} />
-                  <div style={{ marginTop: 5, fontSize: 12, ...ANU, display: 'flex', alignItems: 'center', gap: 4, color: slugHint.color }}>
-                    {slugStatus === 'ok' && <IcoCheck s={12} />}
-                    {slugHint.text}
-                  </div>
+                  {isEditMode ? (
+                    <div style={{ padding: '14px 15px', border: `1.5px solid ${C.line}`, borderRadius: 13, background: '#f1ece3', ...ANU, fontSize: 15, color: C.muted, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ color: C.muted }}>lalen.app/</span>
+                      <span style={{ color: C.ink, fontWeight: 600 }}>{shopSlug}</span>
+                      <span style={{ marginLeft: 'auto', fontSize: 12, color: C.muted }}>เปลี่ยนไม่ได้</span>
+                    </div>
+                  ) : (
+                    <>
+                      <SlugInput value={shopSlug} onChange={checkSlug} status={slugStatus} />
+                      <div style={{ marginTop: 5, fontSize: 12, ...ANU, display: 'flex', alignItems: 'center', gap: 4, color: slugHint.color }}>
+                        {slugStatus === 'ok' && <IcoCheck s={12} />}
+                        {slugHint.text}
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Logo upload (UI only, optional) */}
@@ -705,8 +740,8 @@ export default function ShopSetupPage() {
                 {error && <p style={{ ...ANU, color: C.red, fontSize: 14, marginBottom: 10 }}>{error}</p>}
 
                 <div style={{ marginTop: 'auto', paddingTop: 16 }}>
-                  <PrimaryBtn type="submit" disabled={!shopName || !shopSlug || slugStatus !== 'ok'}>
-                    <IcoArrow s={20} /> ถัดไป · ผูกบัญชี
+                  <PrimaryBtn type="submit" disabled={!shopName || !shopSlug || (!isEditMode && slugStatus !== 'ok')}>
+                    <IcoArrow s={20} /> {isEditMode ? 'ถัดไป · แก้ไขบัญชี' : 'ถัดไป · ผูกบัญชี'}
                   </PrimaryBtn>
                 </div>
               </form>
@@ -716,7 +751,9 @@ export default function ShopSetupPage() {
             {step === 2 && (
               <form onSubmit={submitSetup} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <Stepper step={2} />
-                <h2 style={{ ...KAN, fontWeight: 700, fontSize: 30, color: C.ink, margin: '0 0 6px' }}>ผูกบัญชีรับเงิน</h2>
+                <h2 style={{ ...KAN, fontWeight: 700, fontSize: 30, color: C.ink, margin: '0 0 6px' }}>
+                  {isEditMode ? 'แก้ไขบัญชีรับเงิน' : 'ผูกบัญชีรับเงิน'}
+                </h2>
                 <p style={{ ...ANU, fontSize: 15.5, color: C.muted, margin: '0 0 20px' }}>ผู้ซื้อโอนเข้าบัญชีนี้โดยตรง</p>
 
                 {/* Info banner */}
@@ -802,7 +839,7 @@ export default function ShopSetupPage() {
                     ย้อนกลับ
                   </button>
                   <PrimaryBtn type="submit" loading={loading} style={{ flex: 1 }}>
-                    <IcoCheck s={20} /> เปิดร้าน
+                    <IcoCheck s={20} /> {isEditMode ? 'บันทึกการเปลี่ยนแปลง' : 'เปิดร้าน'}
                   </PrimaryBtn>
                 </div>
               </form>
@@ -820,10 +857,13 @@ export default function ShopSetupPage() {
                 </div>
 
                 <h2 style={{ ...KAN, fontWeight: 700, fontSize: 27, color: C.ink, margin: '0 0 10px' }}>
-                  เปิดร้านสำเร็จ <span style={{ color: C.red }}>🎉</span>
+                  {isEditMode ? 'บันทึกเรียบร้อย ✓' : <>เปิดร้านสำเร็จ <span style={{ color: C.red }}>🎉</span></>}
                 </h2>
                 <p style={{ ...ANU, fontSize: 15, color: C.muted, margin: '0 0 24px' }}>
-                  ร้าน &ldquo;{doneShopName}&rdquo; พร้อมขายแล้ว เริ่มลงการ์ดกองแรกได้เลย
+                  {isEditMode
+                    ? `อัปเดตข้อมูลร้าน "${doneShopName}" เรียบร้อยแล้ว`
+                    : `ร้าน "${doneShopName}" พร้อมขายแล้ว เริ่มลงการ์ดกองแรกได้เลย`
+                  }
                 </p>
 
                 <div style={{ width: '100%' }}>

@@ -50,3 +50,35 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ ok: true })
 }
+
+// PATCH /api/shops — update existing shop
+export async function PATCH(req: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+  const body = await req.json()
+  const { name, bank_name, bank_account, phone, account_holder_name, address } = body
+
+  const { data: shop } = await supabase.from('shops').select('id').eq('owner_id', user.id).maybeSingle()
+  if (!shop) return NextResponse.json({ error: 'shop_not_found' }, { status: 404 })
+
+  const updates: Record<string, unknown> = {}
+  if (name) updates.name = name
+  if (bank_name) updates.bank_name = bank_name
+  if (phone !== undefined) updates.phone = phone?.replace(/-/g, '') || null
+  if (account_holder_name !== undefined) updates.account_holder_name = account_holder_name || null
+  if (address !== undefined) updates.address = address || null
+
+  if (bank_account) {
+    const cleanAccount = bank_account.replace(/-/g, '')
+    updates.bank_account_encrypted = encrypt(cleanAccount)
+    updates.bank_account_last4 = cleanAccount.slice(-4)
+  }
+
+  const admin = adminClient()
+  const { error } = await admin.from('shops').update(updates).eq('id', shop.id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  return NextResponse.json({ ok: true })
+}
