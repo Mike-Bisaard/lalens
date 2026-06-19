@@ -166,6 +166,7 @@ function EditModal({ card, onClose, onSaved, onMarkedSold, onDeleted }: ModalPro
   const soldCount = 0
   const minQty = Math.max(1, soldCount)
 
+  const [editName, setEditName] = useState<string>(card.name)
   const [editPrice, setEditPrice] = useState<string>((card.price / 100).toFixed(2))
   const [editQty, setEditQty] = useState<number>(card.quantity)
   const [saving, setSaving] = useState(false)
@@ -174,9 +175,9 @@ function EditModal({ card, onClose, onSaved, onMarkedSold, onDeleted }: ModalPro
 
   async function handleSave() {
     setSaving(true)
-    const res = await fetch(`/api/cards/${card.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ price: Math.round(parseFloat(editPrice) * 100), quantity: editQty }) })
+    const res = await fetch(`/api/cards/${card.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: editName, price: Math.round(parseFloat(editPrice) * 100), quantity: editQty }) })
     setSaving(false)
-    if (res.ok) onSaved({ ...card, price: Math.round(parseFloat(editPrice) * 100), quantity: editQty })
+    if (res.ok) onSaved({ ...card, name: editName, price: Math.round(parseFloat(editPrice) * 100), quantity: editQty })
   }
 
   async function handleMarkSold() {
@@ -226,6 +227,21 @@ function EditModal({ card, onClose, onSaved, onMarkedSold, onDeleted }: ModalPro
               </div>
             </div>
           )}
+
+          {/* Name */}
+          <div>
+            <label style={{ ...KAN, fontWeight: 500, fontSize: 13, color: C.ink, display: 'block', marginBottom: 7 }}>ชื่อการ์ด</label>
+            <input
+              type="text"
+              value={editName}
+              onChange={e => setEditName(e.target.value)}
+              disabled={locked}
+              placeholder="เช่น Charizard EX"
+              style={{ width: '100%', border: '1.5px solid #e0dde3', borderRadius: 11, padding: '12px 14px', fontSize: 15, ...KAN, background: locked ? '#f3f2f4' : '#faf9f7', color: locked ? C.muted : C.ink, outline: 'none', boxSizing: 'border-box' }}
+              onFocus={e => { if (!locked) { e.target.style.borderColor = C.red; e.target.style.boxShadow = '0 0 0 3px rgba(238,28,37,.1)' } }}
+              onBlur={e => { e.target.style.borderColor = '#e0dde3'; e.target.style.boxShadow = 'none' }}
+            />
+          </div>
 
           {/* Price */}
           <div>

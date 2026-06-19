@@ -5,7 +5,7 @@ import { CardFace } from '@/components/ui'
 
 const KAN: React.CSSProperties = { fontFamily: '"Kanit", sans-serif' }
 
-export type AuthMode = 'signin' | 'signup'
+export type AuthMode = 'signin' | 'signup' | 'shop-setup'
 
 interface AuthLayoutProps {
   mode?: AuthMode
@@ -46,6 +46,97 @@ function LalenIcon({ size = 32 }: { size?: number }) {
 // ────────────────────────────────────────────────────────────
 function BrandPanel({ mode }: { mode: AuthMode }) {
   const signin = mode === 'signin'
+  const isSetup = mode === 'shop-setup'
+
+  if (isSetup) {
+    return (
+      <div
+        className="auth-brand-side"
+        style={{
+          position: 'relative', overflow: 'hidden',
+          padding: '48px 56px', color: '#fff',
+          display: 'flex', flexDirection: 'column',
+          background: `
+            linear-gradient(108deg, rgba(86,7,9,.40) 0%, rgba(86,7,9,.10) 30%, transparent 60%, rgba(86,7,9,.24) 100%),
+            radial-gradient(circle at 12% 8%, #ff7a45, transparent 55%),
+            radial-gradient(circle at 92% 100%, #ffcb05, transparent 55%),
+            linear-gradient(150deg, #ee1c25, #c0141b)`,
+        }}
+      >
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(60% 50% at 80% 30%, rgba(255,255,255,.12), transparent 70%)' }}/>
+
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 11, ...KAN, fontWeight: 700, fontSize: 23, position: 'relative', zIndex: 2, textShadow: '0 1px 8px rgba(78,6,8,.34)' }}>
+          <span style={{ background: '#fff', borderRadius: 13, padding: 4, display: 'grid', placeItems: 'center', boxShadow: '0 6px 16px -6px rgba(0,0,0,.35)' }}>
+            <LalenIcon size={30}/>
+          </span>
+          ละเล่น
+        </div>
+
+        {/* Cards */}
+        <div style={{ position: 'absolute', zIndex: 1, top: '8%', right: 40, width: 148, transform: 'rotate(-9deg)', filter: 'drop-shadow(0 22px 44px rgba(0,0,0,.44))', pointerEvents: 'none' }}>
+          <CardFace tone="fire" emblem="Bolt" name="ริซาร์ดอน" hp={130} stars={3} rarity="EX" holo price={990}/>
+        </div>
+        <div style={{ position: 'absolute', zIndex: 1, top: '47%', right: -18, width: 148, transform: 'rotate(10deg)', filter: 'drop-shadow(0 22px 44px rgba(0,0,0,.44))', pointerEvents: 'none' }}>
+          <CardFace tone="psychic" emblem="Spark" name="มิว" hp={110} stars={3} rarity="UR" holo/>
+        </div>
+
+        {/* Stat chips */}
+        <div style={{ position: 'absolute', zIndex: 3, top: '9%', right: 210, background: '#fff', color: '#1c1b24', borderRadius: 15, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10, whiteSpace: 'nowrap', boxShadow: '0 14px 32px -10px rgba(0,0,0,.42)', ...KAN, pointerEvents: 'none' }}>
+          <span style={{ width: 34, height: 34, borderRadius: 10, background: '#ee1c25', display: 'grid', placeItems: 'center', color: '#fff', flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l1-6h16l1 6"/><path d="M3 9a2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0"/><path d="M5 9v12h14V9"/><rect x="9" y="14" width="6" height="7"/></svg>
+          </span>
+          <span>
+            <b style={{ display: 'block', fontSize: 13, fontWeight: 700, lineHeight: 1 }}>1 ลิงก์</b>
+            <span style={{ fontSize: 11, color: '#6b6a76', fontWeight: 500 }}>หน้าร้านของคุณ</span>
+          </span>
+        </div>
+        <div style={{ position: 'absolute', zIndex: 3, bottom: '16%', right: 174, background: '#fff', color: '#1c1b24', borderRadius: 15, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10, whiteSpace: 'nowrap', boxShadow: '0 14px 32px -10px rgba(0,0,0,.42)', ...KAN, pointerEvents: 'none' }}>
+          <span style={{ width: 34, height: 34, borderRadius: 10, background: '#2a75bb', display: 'grid', placeItems: 'center', color: '#fff', flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v16a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
+          </span>
+          <span>
+            <b style={{ display: 'block', fontSize: 13, fontWeight: 700, lineHeight: 1 }}>เงินเข้าตรง</b>
+            <span style={{ fontSize: 11, color: '#6b6a76', fontWeight: 500 }}>ไม่ผ่านคนกลาง</span>
+          </span>
+        </div>
+
+        {/* Headline */}
+        <div style={{ position: 'relative', zIndex: 2, marginTop: 'auto', paddingTop: 110 }}>
+          <h1 style={{ color: '#fff', fontSize: 'clamp(30px,3.2vw,44px)', lineHeight: 1.12, ...KAN, fontWeight: 700, margin: 0, textShadow: '0 2px 16px rgba(78,6,8,.42)' }}>
+            อีกขั้นเดียว<br/>ก็{' '}
+            <span style={{ position: 'relative', zIndex: 0 }}>
+              เปิดร้าน
+              <span style={{ position: 'absolute', bottom: '0.06em', left: '-0.04em', right: '-0.04em', height: '0.33em', background: '#ffcb05', zIndex: -1, borderRadius: 2 }}/>
+            </span>
+            {' '}ได้
+          </h1>
+          <p style={{ fontSize: 17, color: 'rgba(255,255,255,.95)', marginTop: 14, maxWidth: '18em', lineHeight: 1.6, textShadow: '0 1px 10px rgba(78,6,8,.38)' }}>
+            ตั้งชื่อร้าน เลือกลิงก์ แล้วผูกบัญชีรับเงิน — เริ่มลงขายได้ทันที
+          </p>
+          <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {[
+              { icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l1-6h16l1 6"/><path d="M3 9a2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0"/><path d="M5 9v12h14V9"/><rect x="9" y="14" width="6" height="7"/></svg>, text: 'ได้ลิงก์ร้านสวยๆ ไว้แชร์ทันที' },
+              { icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2.5 4.5 5.5v6c0 5 3.5 8 7.5 9.5 4-1.5 7.5-4.5 7.5-9.5v-6L12 2.5Z"/><path d="m8.7 12 2.3 2.3 4.3-4.6"/></svg>, text: 'เงินโอนตรงเข้าบัญชีคุณ 100%' },
+            ].map(({ icon, text }, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 16, fontWeight: 500, textShadow: '0 1px 8px rgba(78,6,8,.34)' }}>
+                <span style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,.20)', border: '1.5px solid rgba(255,255,255,.36)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                  {icon}
+                </span>
+                {text}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ position: 'relative', zIndex: 2, marginTop: 'auto', paddingTop: 32, display: 'flex', alignItems: 'center', gap: 9, fontSize: 13.5, color: 'rgba(255,255,255,.88)', textShadow: '0 1px 8px rgba(78,6,8,.34)' }}>
+          ✦ ฟรีช่วงเปิดตัว · เริ่มที่การ์ด Pokemon
+        </div>
+      </div>
+    )
+  }
+
   const bullets = [
     {
       icon: <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.4"/></svg>,
@@ -191,7 +282,7 @@ function BrandPanel({ mode }: { mode: AuthMode }) {
 // Exported component
 // ────────────────────────────────────────────────────────────
 export function AuthLayout({ mode, subtitle, children, footer }: AuthLayoutProps) {
-  if (mode === 'signin' || mode === 'signup') {
+  if (mode === 'signin' || mode === 'signup' || mode === 'shop-setup') {
     return (
       <>
         <style>{`

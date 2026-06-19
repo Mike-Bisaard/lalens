@@ -9,6 +9,7 @@ interface DashSidebarProps {
   shopName: string
   shopSlug: string
   pendingOrders: number
+  avatarUrl?: string | null
 }
 
 // ── Nav items ─────────────────────────────────────────────────
@@ -60,7 +61,7 @@ const NAV = [
 ]
 const NAV_BOTTOM = [
   {
-    href: '/dashboard/setup',
+    href: '/dashboard/settings',
     exact: false,
     label: 'ตั้งค่าร้าน',
     icon: (
@@ -100,7 +101,7 @@ function NavItem({ href, label, icon, active, badge }: {
   )
 }
 
-export function DashSidebar({ shopName, shopSlug, pendingOrders }: DashSidebarProps) {
+export function DashSidebar({ shopName, shopSlug, pendingOrders, avatarUrl }: DashSidebarProps) {
   const pathname = usePathname()
 
   function isActive(href: string, exact: boolean) {
@@ -153,8 +154,11 @@ export function DashSidebar({ shopName, shopSlug, pendingOrders }: DashSidebarPr
       <div style={{ padding: '12px 12px 16px' }}>
         {/* Shop card */}
         <div style={{ background: '#f5f4f0', borderRadius: 12, padding: '12px 12px', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-          <div style={{ width: 36, height: 36, borderRadius: '50%', background: avatarBg, color: '#fff', display: 'grid', placeItems: 'center', ...KAN, fontWeight: 700, fontSize: 16, flexShrink: 0 }}>
-            {initial}
+          <div style={{ width: 36, height: 36, borderRadius: '50%', background: avatarUrl ? 'transparent' : avatarBg, color: '#fff', display: 'grid', placeItems: 'center', ...KAN, fontWeight: 700, fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
+            {avatarUrl
+              ? <img src={avatarUrl} alt={shopName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : initial
+            }
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ ...KAN, fontWeight: 600, fontSize: 13.5, color: '#1c1b24', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

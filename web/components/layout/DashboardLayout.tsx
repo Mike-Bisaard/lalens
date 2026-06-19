@@ -29,10 +29,11 @@ export async function DashboardLayout({ title = 'ภาพรวมร้าน'
   const shopName = shop.name
   const shopSlug = shop.slug
   const pendingOrders = count ?? 0
+  const avatarUrl = shop.avatar_url as string | null
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#faf7f2', fontFamily: '"Anuphan", sans-serif' }}>
-      <DashSidebar shopName={shopName} shopSlug={shopSlug} pendingOrders={pendingOrders} />
+      <DashSidebar shopName={shopName} shopSlug={shopSlug} pendingOrders={pendingOrders} avatarUrl={avatarUrl} />
 
       {/* Main */}
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>

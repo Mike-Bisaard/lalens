@@ -22,14 +22,30 @@ export async function proxy(request: NextRequest) {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
+  const path = request.nextUrl.pathname
+
+  console.log('[proxy]', path, user ? user.id.slice(0,8) : 'no-user')
 
   // Protect dashboard routes
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
+  if (!user && path.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
+  // Mandatory setup gate: logged-in user with no shop must complete setup first
+  if (user && path.startsWith('/dashboard') && path !== '/dashboard/setup') {
+    const { data: shop } = await supabase
+      .from('shops')
+      .select('id')
+      .eq('owner_id', user.id)
+      .maybeSingle()
+    console.log('[proxy] shop check:', shop ? shop.id.slice(0,8) : 'NO SHOP')
+    if (!shop) {
+      return NextResponse.redirect(new URL('/dashboard/setup', request.url))
+    }
+  }
+
   // Redirect logged-in users away from auth pages
-  if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register')) {
+  if (user && (path === '/login' || path === '/register')) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
