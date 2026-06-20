@@ -251,14 +251,15 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
   const [originalUrl, setOriginalUrl] = useState<string>('')
   const [publishing, setPublishing] = useState(false)
   const [cropModal, setCropModal] = useState(false)
+  const [batchId, setBatchId] = useState('')
 
   const activeCards = cards.filter((_, i) => !dropped.has(i))
   const totalValue = activeCards.reduce((s, c) => s + parseInt((c.price || '0').replace(/,/g, ''), 10), 0)
   const stepIdx = STEP_KEYS.indexOf(step)
 
   const shareUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/${shopSlug}`
-    : `https://web-kappa-nine-28.vercel.app/${shopSlug}`
+    ? `${window.location.origin}/${shopSlug}${batchId ? `?batch=${batchId}` : ''}`
+    : `https://web-kappa-nine-28.vercel.app/${shopSlug}${batchId ? `?batch=${batchId}` : ''}`
 
   // ── Detect ────────────────────────────────────────────────────
   const onDrop = useCallback(async (files: File[]) => {
@@ -310,6 +311,8 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
     const res = await fetch('/api/upload/publish', { method: 'POST', body: fd })
     setPublishing(false)
     if (res.ok) {
+      const { batchId: id } = await res.json()
+      setBatchId(id)
       setStep('success')
     } else {
       const err = await res.json().catch(() => ({}))

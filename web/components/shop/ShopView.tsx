@@ -20,7 +20,7 @@ interface Props {
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const KAN: React.CSSProperties = { fontFamily: '"Kanit", sans-serif' }
 const ANU: React.CSSProperties = { fontFamily: '"Anuphan", sans-serif' }
-function fmtB(n: number) { return `฿${n.toLocaleString('th-TH')}` }
+function fmtB(n: number) { return `฿${(n / 100).toLocaleString('th-TH')}` }
 function relDate(iso: string) {
   const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
   const t = new Date(iso).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
