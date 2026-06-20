@@ -247,6 +247,7 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
   const [publishing, setPublishing] = useState(false)
   const [cropModal, setCropModal] = useState(false)
   const [batchId, setBatchId] = useState('')
+  const [previewCard, setPreviewCard] = useState<{ dataUrl: string; index: number } | null>(null)
 
   const activeCards = cards
   const totalValue = activeCards.reduce((s, c) => s + inputToSatang(c.price), 0)
@@ -504,7 +505,7 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 12 }}>
               {cards.map((card, i) => (
-                <div key={i} style={{ position: 'relative' }}>
+                <div key={i} style={{ position: 'relative', cursor: 'zoom-in' }} onClick={() => card.imageDataUrl && setPreviewCard({ dataUrl: card.imageDataUrl, index: i })}>
                   <div style={{ aspectRatio: '63/88', borderRadius: 10, overflow: 'hidden', background: '#f0ede8', border: `2px solid ${C.green}` }}>
                     {card.imageDataUrl && (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -514,7 +515,7 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
                   <div style={{ position: 'absolute', top: 5, left: 5, width: 20, height: 20, borderRadius: '50%', background: 'rgba(28,27,36,.7)', color: '#fff', display: 'grid', placeItems: 'center', ...KAN, fontWeight: 700, fontSize: 10 }}>
                     {i + 1}
                   </div>
-                  <button onClick={() => removeCard(i)} style={{
+                  <button onClick={e => { e.stopPropagation(); removeCard(i) }} style={{
                     position: 'absolute', top: 4, right: 4, width: 24, height: 24,
                     borderRadius: '50%', border: 'none', cursor: 'pointer',
                     background: C.red, color: '#fff',
@@ -700,6 +701,36 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
                 )}
               </button>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Card preview lightbox */}
+      {previewCard && (
+        <div
+          onClick={() => setPreviewCard(null)}
+          style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,.82)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+        >
+          <div onClick={e => e.stopPropagation()} style={{ position: 'relative', maxHeight: '90vh', maxWidth: 'min(360px, 90vw)', width: '100%' }}>
+            {/* Card number badge */}
+            <div style={{ position: 'absolute', top: -12, left: -12, width: 30, height: 30, borderRadius: '50%', background: C.red, color: '#fff', display: 'grid', placeItems: 'center', ...KAN, fontWeight: 700, fontSize: 13, border: '2.5px solid #fff', zIndex: 1, boxShadow: '0 3px 10px rgba(0,0,0,.4)' }}>
+              {previewCard.index + 1}
+            </div>
+            {/* Close button */}
+            <button
+              onClick={() => setPreviewCard(null)}
+              style={{ position: 'absolute', top: -12, right: -12, width: 30, height: 30, borderRadius: '50%', background: C.ink, color: '#fff', border: '2.5px solid #fff', display: 'grid', placeItems: 'center', cursor: 'pointer', zIndex: 1, boxShadow: '0 3px 10px rgba(0,0,0,.4)' }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+            {/* Image */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewCard.dataUrl}
+              alt={`card-${previewCard.index + 1}`}
+              style={{ width: '100%', aspectRatio: '63/88', objectFit: 'cover', borderRadius: 16, display: 'block', boxShadow: '0 24px 60px rgba(0,0,0,.6)' }}
+            />
+            <p style={{ ...ANU, textAlign: 'center', color: 'rgba(255,255,255,.5)', fontSize: 13, marginTop: 12, margin: '12px 0 0' }}>กดนอกรูปหรือ ✕ เพื่อปิด</p>
           </div>
         </div>
       )}
