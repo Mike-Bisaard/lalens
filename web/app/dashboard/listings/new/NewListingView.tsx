@@ -242,14 +242,13 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
   const [step, setStep] = useState<Step>('upload')
   const [detectError, setDetectError] = useState<string | null>(null)
   const [cards, setCards] = useState<CardItem[]>([])
-  const [dropped, setDropped] = useState<Set<number>>(new Set())
   const [originalFile, setOriginalFile] = useState<File | null>(null)
   const [originalUrl, setOriginalUrl] = useState<string>('')
   const [publishing, setPublishing] = useState(false)
   const [cropModal, setCropModal] = useState(false)
   const [batchId, setBatchId] = useState('')
 
-  const activeCards = cards.filter((_, i) => !dropped.has(i))
+  const activeCards = cards
   const totalValue = activeCards.reduce((s, c) => s + inputToSatang(c.price), 0)
   const stepIdx = STEP_KEYS.indexOf(step)
 
@@ -287,7 +286,6 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
       if (!data.cards?.length) throw new Error('ไม่พบการ์ดในรูป — ลองถ่ายบนพื้นที่ตัดกัน แสงสว่างพอ')
 
       setCards(data.cards.map((c: { index: number; imageDataUrl: string }) => ({ ...c, name: '', price: '', condition: 'NM' as CondCode })))
-      setDropped(new Set())
       setStep('review')
     } catch (err) {
       setDetectError(err instanceof Error ? (err.name === 'AbortError' ? 'หมดเวลา — ลองรูปที่เล็กกว่านี้' : err.message) : 'เกิดข้อผิดพลาดที่ไม่คาดคิด')
@@ -321,8 +319,8 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
     setCropModal(false)
   }
 
-  function toggleDrop(i: number) {
-    setDropped(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n })
+  function removeCard(i: number) {
+    setCards(prev => prev.filter((_, idx) => idx !== i))
   }
 
   function updateCard(i: number, patch: Partial<CardItem>) {
@@ -330,7 +328,7 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
   }
 
   function resetAll() {
-    setStep('upload'); setCards([]); setDropped(new Set())
+    setStep('upload'); setCards([])
     setOriginalFile(null)
     if (originalUrl) { URL.revokeObjectURL(originalUrl); setOriginalUrl('') }
   }
@@ -375,29 +373,32 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
               <p style={{ ...ANU, fontSize: 15, color: C.muted, margin: 0 }}>ถ่ายรูปการ์ดหลายใบในรูปเดียว ระบบจะตัดกรอบแยกให้เอง — ไม่ต้องถ่ายทีละใบ</p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20, alignItems: 'start' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 26, alignItems: 'stretch' }}>
               {/* Drop zone */}
-              <div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div {...getRootProps()} style={{
-                  border: `2px dashed ${isDragActive ? C.red : '#d4d0cb'}`,
-                  borderRadius: 18, padding: '52px 32px', textAlign: 'center', cursor: 'pointer',
-                  background: isDragActive ? C.tintRed : C.paper,
+                  flex: 1,
+                  border: `2.5px dashed ${isDragActive ? C.red : '#d8d3ca'}`,
+                  borderRadius: 18, textAlign: 'center', cursor: 'pointer',
+                  background: isDragActive ? C.tintRed : '#faf9f7',
                   transition: 'border-color .15s, background .15s',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  padding: '40px 28px',
                 }}>
                   <input {...getInputProps()} />
-                  <div style={{ width: 60, height: 60, borderRadius: 16, background: isDragActive ? C.tintRed : '#f5f3ef', display: 'grid', placeItems: 'center', margin: '0 auto 18px' }}>
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={isDragActive ? C.red : C.muted} strokeWidth="2" strokeLinecap="round">
+                  <div style={{ width: 74, height: 74, borderRadius: 22, background: isDragActive ? C.redDeep : C.red, display: 'grid', placeItems: 'center', margin: '0 auto 18px', boxShadow: `0 6px 0 ${isDragActive ? '#8a0e13' : C.redDeep}`, transition: 'background .15s' }}>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
                       <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
                     </svg>
                   </div>
-                  <p style={{ ...KAN, fontWeight: 700, fontSize: 17, color: C.ink, margin: '0 0 8px' }}>
+                  <p style={{ ...KAN, fontWeight: 700, fontSize: 20, color: C.ink, margin: '0 0 8px' }}>
                     {isDragActive ? 'วางรูปได้เลย' : 'ลากรูปมาวาง หรือ คลิกเพื่อเลือกรูป'}
                   </p>
-                  <p style={{ ...ANU, fontSize: 13.5, color: C.muted, margin: 0 }}>รองรับหลายใบในรูปเดียว · JPG / PNG / HEIC</p>
+                  <p style={{ ...ANU, fontSize: 14, color: C.muted, margin: 0 }}>รองรับหลายใบในรูปเดียว · JPG / PNG / HEIC</p>
                 </div>
 
                 {detectError && (
-                  <div style={{ marginTop: 14, background: C.tintRed, border: `1.5px solid #ffc5c0`, borderRadius: 12, padding: '12px 16px', display: 'flex', gap: 10 }}>
+                  <div style={{ background: C.tintRed, border: `1.5px solid #ffc5c0`, borderRadius: 12, padding: '12px 16px', display: 'flex', gap: 10 }}>
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
                     <div>
                       <b style={{ ...KAN, fontWeight: 600, fontSize: 13.5, color: C.red, display: 'block', marginBottom: 2 }}>ตรวจจับไม่สำเร็จ</b>
@@ -407,30 +408,50 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
                 )}
               </div>
 
-              {/* Tips */}
-              <div style={{ background: C.paper, border: `1.5px solid ${C.line}`, borderRadius: 16, padding: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 14 }}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill={C.yellow} stroke={C.yellow} strokeWidth="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                  <b style={{ ...KAN, fontWeight: 700, fontSize: 14, color: C.ink }}>ถ่ายให้ตัดกรอบแม่นๆ</b>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
-                  {['วางการ์ดเรียงกัน อย่าให้ซ้อนทับ', 'แสงสว่างพอ ไม่มีเงาทับการ์ด', 'ถ่ายตรงๆ จากด้านบน เห็นทั้งใบ'].map(tip => (
-                    <div key={tip} style={{ display: 'flex', alignItems: 'flex-start', gap: 9 }}>
-                      <div style={{ width: 18, height: 18, borderRadius: '50%', background: C.tintGreen, display: 'grid', placeItems: 'center', flexShrink: 0, marginTop: 2 }}>
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-                      </div>
-                      <span style={{ ...ANU, fontSize: 13.5, color: C.ink, lineHeight: 1.45 }}>{tip}</span>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${C.line}` }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill={C.yellow} stroke={C.yellow} strokeWidth="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                    <span style={{ ...KAN, fontWeight: 600, fontSize: 12, color: C.muted }}>ตัวอย่างรูปที่ดี</span>
+              {/* Tips + Example */}
+              <div style={{ background: C.paper, border: `1.5px solid ${C.line}`, borderRadius: 16, padding: '20px 22px' }}>
+                <div style={{ background: '#eff6ff', borderRadius: 14, padding: '18px 20px', marginBottom: 18 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                    <span style={{ fontSize: 17 }}>📸</span>
+                    <b style={{ ...KAN, fontWeight: 700, fontSize: 14.5, color: '#1e40af' }}>ถ่ายให้ตัดกรอบแม่นๆ</b>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 5 }}>
-                    {['#e8d5c4', '#c4d5e8', '#c4e8d5', '#e8c4d5', '#d5e8c4', '#d5c4e8'].map((bg, i) => (
-                      <div key={i} style={{ aspectRatio: '63/88', borderRadius: 6, background: bg, border: `1.5px solid ${C.line}` }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {['วางการ์ดเรียงกัน อย่าให้ซ้อนทับ', 'แสงสว่างพอ ไม่มีเงาทับการ์ด', 'ถ่ายตรงๆ จากด้านบน เห็นทั้งใบ'].map(tip => (
+                      <div key={tip} style={{ display: 'flex', alignItems: 'flex-start', gap: 9 }}>
+                        <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#dbeafe', display: 'grid', placeItems: 'center', flexShrink: 0, marginTop: 2 }}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+                        </div>
+                        <span style={{ ...ANU, fontSize: 13.5, color: C.ink, lineHeight: 1.45 }}>{tip}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill={C.yellow} stroke={C.yellow} strokeWidth="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  <span style={{ ...ANU, fontSize: 13, color: C.muted }}>ตัวอย่างรูปที่ดี</span>
+                </div>
+                {/* Group photo mockup */}
+                <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', background: 'linear-gradient(150deg,#2b2620,#191510)', padding: 14 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                    {[
+                      'linear-gradient(150deg,#b5470b,#e8692a)',
+                      'linear-gradient(150deg,#1a5a8a,#2a8fd0)',
+                      'linear-gradient(150deg,#1a7a40,#27b55a)',
+                      'linear-gradient(150deg,#6b2a8a,#b040e0)',
+                      'linear-gradient(150deg,#8a6a1a,#d4a820)',
+                      'linear-gradient(150deg,#8a1a2a,#c84060)',
+                    ].map((bg, i) => (
+                      <div key={i} style={{ position: 'relative' }}>
+                        <div style={{ aspectRatio: '63/88', borderRadius: 8, background: bg, border: '1.5px solid rgba(255,255,255,.15)', overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: '8%', gap: '6%' }}>
+                          <div style={{ height: '14%', background: 'rgba(255,255,255,.15)', borderRadius: 3 }} />
+                          <div style={{ flex: 1, borderRadius: 5, background: 'rgba(0,0,0,.25)', display: 'grid', placeItems: 'center' }}>
+                            <div style={{ width: '45%', aspectRatio: '1', borderRadius: '50%', background: 'rgba(255,255,255,.25)' }} />
+                          </div>
+                          <div style={{ height: '12%', background: 'rgba(255,255,255,.12)', borderRadius: 3 }} />
+                        </div>
+                        <div style={{ position: 'absolute', inset: '-7%', border: `2px dashed ${C.yellow}`, borderRadius: 9, pointerEvents: 'none' }} />
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -468,7 +489,7 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: C.tintGreen, border: `1.5px solid #b8edcc`, borderRadius: 999, padding: '5px 14px' }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-                <span style={{ ...KAN, fontWeight: 700, fontSize: 13, color: C.greenDeep }}>ระบบเจอ {cards.length} ใบ</span>
+                <span style={{ ...KAN, fontWeight: 700, fontSize: 13, color: C.greenDeep }}>ระบบเจอ {activeCards.length} ใบ</span>
               </div>
               <button onClick={() => setCropModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, ...KAN, fontWeight: 600, fontSize: 13.5, color: C.red, background: C.tintRed, border: `1.5px solid #ffcec9`, borderRadius: 10, padding: '7px 14px', cursor: 'pointer' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -482,33 +503,27 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 12 }}>
-              {cards.map((card, i) => {
-                const isDropped = dropped.has(i)
-                return (
-                  <div key={i} style={{ position: 'relative', opacity: isDropped ? 0.3 : 1, transition: 'opacity .2s' }}>
-                    <div style={{ aspectRatio: '63/88', borderRadius: 10, overflow: 'hidden', background: '#f0ede8', border: `2px solid ${isDropped ? C.line : C.green}`, transition: 'border-color .2s' }}>
-                      {card.imageDataUrl && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={card.imageDataUrl} alt={`card-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                      )}
-                    </div>
-                    <div style={{ position: 'absolute', top: 5, left: 5, width: 20, height: 20, borderRadius: '50%', background: 'rgba(28,27,36,.7)', color: '#fff', display: 'grid', placeItems: 'center', ...KAN, fontWeight: 700, fontSize: 10 }}>
-                      {i + 1}
-                    </div>
-                    <button onClick={() => toggleDrop(i)} style={{
-                      position: 'absolute', top: 4, right: 4, width: 24, height: 24,
-                      borderRadius: '50%', border: 'none', cursor: 'pointer',
-                      background: isDropped ? C.green : C.red, color: '#fff',
-                      display: 'grid', placeItems: 'center', boxShadow: '0 2px 6px rgba(0,0,0,.3)',
-                    }}>
-                      {isDropped
-                        ? <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
-                        : <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                      }
-                    </button>
+              {cards.map((card, i) => (
+                <div key={i} style={{ position: 'relative' }}>
+                  <div style={{ aspectRatio: '63/88', borderRadius: 10, overflow: 'hidden', background: '#f0ede8', border: `2px solid ${C.green}` }}>
+                    {card.imageDataUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={card.imageDataUrl} alt={`card-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    )}
                   </div>
-                )
-              })}
+                  <div style={{ position: 'absolute', top: 5, left: 5, width: 20, height: 20, borderRadius: '50%', background: 'rgba(28,27,36,.7)', color: '#fff', display: 'grid', placeItems: 'center', ...KAN, fontWeight: 700, fontSize: 10 }}>
+                    {i + 1}
+                  </div>
+                  <button onClick={() => removeCard(i)} style={{
+                    position: 'absolute', top: 4, right: 4, width: 24, height: 24,
+                    borderRadius: '50%', border: 'none', cursor: 'pointer',
+                    background: C.red, color: '#fff',
+                    display: 'grid', placeItems: 'center', boxShadow: '0 2px 6px rgba(0,0,0,.3)',
+                  }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -647,7 +662,7 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40, background: C.paper, borderTop: `1.5px solid ${C.line}`, boxShadow: '0 -4px 20px rgba(0,0,0,.07)', padding: '14px 24px' }}>
           <div style={{ maxWidth: 1000, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ flex: 1, ...ANU, fontSize: 14, color: C.muted }}>
-              {step === 'review' && <>ตรวจแล้ว <b style={{ color: C.ink }}>{activeCards.length} ใบ</b>{dropped.size > 0 && <> · เอาออก {dropped.size} ใบ</>} · พร้อมตั้งราคา</>}
+              {step === 'review' && <>ตรวจแล้ว <b style={{ color: C.ink }}>{activeCards.length} ใบ</b> · พร้อมตั้งราคา</>}
               {step === 'pricing' && <>รวม <b style={{ color: C.ink }}>{activeCards.length} ใบ</b> · มูลค่า <b style={{ color: C.ink }}>{displayPrice(totalValue)}</b></>}
             </div>
 
