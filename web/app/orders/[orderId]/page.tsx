@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
+import { displayPrice } from '@/lib/money'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -96,13 +97,13 @@ export default async function OrderStatusPage({ params }: Props) {
                   <p className="text-sm font-semibold">{item.cards?.name || 'ไม่ระบุชื่อ'}</p>
                   <p className="text-xs text-zinc-500">{item.cards?.condition}</p>
                 </div>
-                <p className="text-sm font-bold text-emerald-400">฿{(item.price_snapshot / 100).toLocaleString()}</p>
+                <p className="text-sm font-bold text-emerald-400">{displayPrice(item.price_snapshot)}</p>
               </div>
             ))}
           </div>
           <div className="p-4 border-t border-zinc-800 flex justify-between">
             <span className="text-zinc-400">รวม</span>
-            <span className="font-black text-emerald-400">฿{(order.total_amount / 100).toLocaleString()}</span>
+            <span className="font-black text-emerald-400">{displayPrice(order.total_amount)}</span>
           </div>
         </div>
 

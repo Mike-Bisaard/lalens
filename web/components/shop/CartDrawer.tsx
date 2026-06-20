@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import type { Shop, Card } from '@/types'
+import { displayPrice } from '@/lib/money'
 
 interface Props {
   isOpen: boolean
@@ -15,7 +16,6 @@ interface Props {
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const KAN: React.CSSProperties = { fontFamily: '"Kanit", sans-serif' }
 const ANU: React.CSSProperties = { fontFamily: '"Anuphan", sans-serif' }
-function fmtB(n: number) { return `฿${n.toLocaleString('th-TH')}` }
 
 type Step = 'cart' | 'payment' | 'verifying' | 'success' | 'fail'
 
@@ -278,7 +278,7 @@ export default function CartDrawer({ isOpen, onClose, cart, shop, onRemove }: Pr
                         <p style={{ ...ANU, fontSize: 12.5, color: '#6b6a76', margin: '2px 0 0' }}>{card.condition}</p>
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <p style={{ ...KAN, fontWeight: 700, fontSize: 15, color: '#ee1c25', margin: 0 }}>{fmtB(card.price)}</p>
+                        <p style={{ ...KAN, fontWeight: 700, fontSize: 15, color: '#ee1c25', margin: 0 }}>{displayPrice(card.price)}</p>
                         <button
                           onClick={() => onRemove(card.id)}
                           style={{ ...ANU, fontSize: 12, color: '#a1a1aa', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0', marginTop: 3 }}
@@ -296,7 +296,7 @@ export default function CartDrawer({ isOpen, onClose, cart, shop, onRemove }: Pr
                 {/* Total */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '14px 0', borderBottom: '1.5px dashed #eceaee', marginBottom: 16 }}>
                   <span style={{ ...ANU, fontSize: 14, color: '#6b6a76' }}>รวมทั้งหมด</span>
-                  <span style={{ ...KAN, fontWeight: 700, fontSize: 26, color: '#1c1b24' }}>{fmtB(total)}</span>
+                  <span style={{ ...KAN, fontWeight: 700, fontSize: 26, color: '#1c1b24' }}>{displayPrice(total)}</span>
                 </div>
                 {/* Email */}
                 <div style={{ marginBottom: 14 }}>
@@ -356,7 +356,7 @@ export default function CartDrawer({ isOpen, onClose, cart, shop, onRemove }: Pr
             {/* Bank info */}
             <div style={{ background: '#faf7f2', border: '1.5px solid #eceaee', borderRadius: 16, padding: '18px 20px', marginBottom: 20 }}>
               <p style={{ ...ANU, fontSize: 12.5, color: '#6b6a76', margin: '0 0 4px' }}>โอนเงินมาที่</p>
-              <p style={{ ...KAN, fontWeight: 700, fontSize: 28, color: '#ee1c25', margin: '0 0 16px' }}>{fmtB(total)}</p>
+              <p style={{ ...KAN, fontWeight: 700, fontSize: 28, color: '#ee1c25', margin: '0 0 16px' }}>{displayPrice(total)}</p>
               <div style={{ borderTop: '1.5px solid #eceaee', paddingTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ ...ANU, fontSize: 13.5, color: '#6b6a76' }}>ธนาคาร</span>

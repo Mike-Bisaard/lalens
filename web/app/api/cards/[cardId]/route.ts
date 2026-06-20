@@ -38,7 +38,7 @@ export async function PATCH(
   if (body.name !== undefined) updates.name = body.name
   if (body.condition !== undefined) updates.condition = body.condition
   if (body.price !== undefined) {
-    const p = Math.round(parseFloat(body.price) * 100)
+    const p = parseInt(body.price, 10)
     if (isNaN(p) || p < 0) return NextResponse.json({ error: 'invalid_price' }, { status: 400 })
     updates.price = p
   }

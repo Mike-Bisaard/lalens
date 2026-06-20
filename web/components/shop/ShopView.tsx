@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import type { Shop, Card } from '@/types'
+import { displayPrice } from '@/lib/money'
 import CartDrawer from './CartDrawer'
 
 interface BatchWithCards {
@@ -20,7 +21,6 @@ interface Props {
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const KAN: React.CSSProperties = { fontFamily: '"Kanit", sans-serif' }
 const ANU: React.CSSProperties = { fontFamily: '"Anuphan", sans-serif' }
-function fmtB(n: number) { return `฿${(n / 100).toLocaleString('th-TH')}` }
 function relDate(iso: string) {
   const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
   const t = new Date(iso).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
@@ -130,7 +130,7 @@ function CardTile({ card, inCart, onAdd, onRemove, onNotify }: {
           {/* In-cart check */}
           {inCart && <div style={{ position:'absolute', top:6, left:6, width:22, height:22, borderRadius:'50%', background:'#ffcb05', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, boxShadow:'0 2px 6px rgba(0,0,0,.3)' }}>✓</div>}
           {/* Price pill */}
-          {!isSold && <div style={{ position:'absolute', bottom:7, left:'50%', transform:'translateX(-50%)', background:'#ffcb05', color:'#1c1b24', ...KAN, fontWeight:700, fontSize:11.5, padding:'3px 10px', borderRadius:999, boxShadow:'0 2px 8px rgba(0,0,0,.35)', whiteSpace:'nowrap', pointerEvents:'none' }}>{fmtB(card.price)}</div>}
+          {!isSold && <div style={{ position:'absolute', bottom:7, left:'50%', transform:'translateX(-50%)', background:'#ffcb05', color:'#1c1b24', ...KAN, fontWeight:700, fontSize:11.5, padding:'3px 10px', borderRadius:999, boxShadow:'0 2px 8px rgba(0,0,0,.35)', whiteSpace:'nowrap', pointerEvents:'none' }}>{displayPrice(card.price)}</div>}
         </div>
       </div>
 
@@ -331,7 +331,7 @@ export default function ShopView({ shop, batches }: Props) {
           <div style={{ maxWidth:880, margin:'0 auto', padding:'14px 24px', display:'flex', alignItems:'center', gap:16 }}>
             <div style={{ flex:1 }}>
               <span style={{ ...KAN, fontSize:16, color:'#1c1b24' }}>
-                {cart.size} ใบ · <span style={{ color:'#ee1c25', fontWeight:700, fontSize:19 }}>{fmtB(totalAmount)}</span>
+                {cart.size} ใบ · <span style={{ color:'#ee1c25', fontWeight:700, fontSize:19 }}>{displayPrice(totalAmount)}</span>
               </span>
             </div>
             <div style={{ display:'flex', alignItems:'center', gap:5, color:'#d98800', ...KAN, fontWeight:600, fontSize:12.5 }}>

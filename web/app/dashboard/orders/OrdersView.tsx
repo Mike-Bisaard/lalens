@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { displayPrice } from '@/lib/money'
 import Image from 'next/image'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -227,13 +228,13 @@ function DetailModal({ order, onClose, onOpenShip, onComplete }: { order: Order;
                     <div style={{ fontFamily: 'Kanit,sans-serif', fontWeight: 600, fontSize: 14, color: C.ink }}>{item.cards?.name ?? 'การ์ด'}</div>
                     <div style={{ fontSize: 12, color: C.muted }}>{item.cards?.condition ?? ''}</div>
                   </div>
-                  <div style={{ fontFamily: 'Kanit,sans-serif', fontWeight: 700, fontSize: 15, color: C.ink, flexShrink: 0 }}>฿{(item.price_snapshot / 100).toLocaleString()}</div>
+                  <div style={{ fontFamily: 'Kanit,sans-serif', fontWeight: 700, fontSize: 15, color: C.ink, flexShrink: 0 }}>{displayPrice(item.price_snapshot)}</div>
                 </div>
               ))}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 13, borderTop: `1.5px dashed ${C.line}`, marginTop: 4 }}>
               <span style={{ fontSize: 13.5, color: C.muted, fontFamily: 'Kanit,sans-serif' }}>ยอดรวมทั้งหมด</span>
-              <span style={{ fontFamily: 'Kanit,sans-serif', fontWeight: 700, fontSize: 24, color: C.ink }}>฿{(order.total_amount / 100).toLocaleString()}</span>
+              <span style={{ fontFamily: 'Kanit,sans-serif', fontWeight: 700, fontSize: 24, color: C.ink }}>{displayPrice(order.total_amount)}</span>
             </div>
           </div>
 
@@ -412,7 +413,7 @@ export default function OrdersView({ shopId, initialOrders }: { shopId: string; 
                       <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{order.buyer_email ?? '-'}</span>
                     </td>
                     <td style={{ padding: '13px 18px', textAlign: 'right' }}>
-                      <span style={{ fontFamily: 'Kanit,sans-serif', fontWeight: 700, fontSize: 15 }}>฿{(order.total_amount / 100).toLocaleString()}</span>
+                      <span style={{ fontFamily: 'Kanit,sans-serif', fontWeight: 700, fontSize: 15 }}>{displayPrice(order.total_amount)}</span>
                     </td>
                     <td style={{ padding: '13px 18px', textAlign: 'center' }}>
                       {order.status === 'pending_payment'

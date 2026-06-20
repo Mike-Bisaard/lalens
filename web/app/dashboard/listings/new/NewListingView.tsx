@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useRouter } from 'next/navigation'
+import { displayPrice, formatBahtInput, inputToSatang } from '@/lib/money'
 
 // ── Tokens ────────────────────────────────────────────────────
 const C = {
@@ -38,11 +39,6 @@ const CONDITIONS: { code: CondCode; full: string }[] = [
   { code: 'HP', full: 'Hard Play' },
   { code: 'DMG', full: 'Damaged' },
 ]
-
-function fmtPrice(val: string): string {
-  const digits = val.replace(/[^0-9]/g, '')
-  return digits ? parseInt(digits, 10).toLocaleString('en-US') : ''
-}
 
 // ── Stepper ────────────────────────────────────────────────────
 function StepperBar({ current }: { current: number }) {
@@ -254,7 +250,7 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
   const [batchId, setBatchId] = useState('')
 
   const activeCards = cards.filter((_, i) => !dropped.has(i))
-  const totalValue = activeCards.reduce((s, c) => s + parseInt((c.price || '0').replace(/,/g, ''), 10), 0)
+  const totalValue = activeCards.reduce((s, c) => s + inputToSatang(c.price), 0)
   const stepIdx = STEP_KEYS.indexOf(step)
 
   const shareUrl = typeof window !== 'undefined'
@@ -591,7 +587,7 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
                         <div style={{ position: 'relative' }}>
                           <span style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', ...KAN, fontWeight: 600, color: C.muted, fontSize: 14, pointerEvents: 'none' }}>฿</span>
                           <input type="text" inputMode="numeric" placeholder="0" value={card.price}
-                            onChange={e => updateCard(realIdx, { price: fmtPrice(e.target.value) })}
+                            onChange={e => updateCard(realIdx, { price: formatBahtInput(e.target.value) })}
                             style={{ width: '100%', border: `1.5px solid ${C.line}`, borderRadius: 9, padding: '8px 11px 8px 25px', fontSize: 14, ...KAN, fontWeight: 600, background: '#faf9f7', color: C.ink, outline: 'none', boxSizing: 'border-box' }}
                             onFocus={e => { e.target.style.borderColor = C.red; e.target.style.boxShadow = '0 0 0 3px rgba(238,28,37,.1)' }}
                             onBlur={e => { e.target.style.borderColor = C.line; e.target.style.boxShadow = 'none' }}
@@ -627,7 +623,7 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
                 <div style={{ ...ANU, fontSize: 13, color: C.muted, marginTop: 3 }}>ใบที่ขึ้นขาย</div>
               </div>
               <div style={{ background: C.paper, border: `1.5px solid ${C.line}`, borderRadius: 14, padding: '16px 32px', textAlign: 'center' }}>
-                <div style={{ ...KAN, fontWeight: 800, fontSize: 30, color: C.ink }}>฿{totalValue.toLocaleString('th-TH')}</div>
+                <div style={{ ...KAN, fontWeight: 800, fontSize: 30, color: C.ink }}>{displayPrice(totalValue)}</div>
                 <div style={{ ...ANU, fontSize: 13, color: C.muted, marginTop: 3 }}>มูลค่ารวม</div>
               </div>
             </div>
@@ -652,7 +648,7 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
           <div style={{ maxWidth: 1000, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ flex: 1, ...ANU, fontSize: 14, color: C.muted }}>
               {step === 'review' && <>ตรวจแล้ว <b style={{ color: C.ink }}>{activeCards.length} ใบ</b>{dropped.size > 0 && <> · เอาออก {dropped.size} ใบ</>} · พร้อมตั้งราคา</>}
-              {step === 'pricing' && <>รวม <b style={{ color: C.ink }}>{activeCards.length} ใบ</b> · มูลค่า <b style={{ color: C.ink }}>฿{totalValue.toLocaleString('th-TH')}</b></>}
+              {step === 'pricing' && <>รวม <b style={{ color: C.ink }}>{activeCards.length} ใบ</b> · มูลค่า <b style={{ color: C.ink }}>{displayPrice(totalValue)}</b></>}
             </div>
 
             <button onClick={() => step === 'review' ? setStep('upload') : setStep('review')} style={{ ...KAN, fontWeight: 600, fontSize: 14, padding: '10px 18px', borderRadius: 12, border: `1.5px solid ${C.line}`, background: C.paper, color: C.ink, cursor: 'pointer' }}>

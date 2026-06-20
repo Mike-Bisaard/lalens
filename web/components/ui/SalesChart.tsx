@@ -1,5 +1,7 @@
 'use client'
 
+import { displayPrice } from '@/lib/money'
+
 // SVG area chart — รับ data array (ยอดขายรายวัน) render เป็น red fill area chart
 export function SalesChart({ data }: { data: number[] }) {
   const W = 600
@@ -63,7 +65,7 @@ export function SalesChart({ data }: { data: number[] }) {
                 {/* Tooltip */}
                 <rect x={px - 44} y={py - 32} width={88} height={24} rx={7} fill="#1c1b24"/>
                 <text x={px} y={py - 16} textAnchor="middle" fill="#fff" fontSize={11} fontFamily='"Kanit",sans-serif' fontWeight={700}>
-                  ฿{max.toLocaleString('th-TH')}
+                  {displayPrice(max)}
                 </text>
                 <text x={px} y={py - 6} textAnchor="middle" fill="rgba(255,255,255,.7)" fontSize={9} fontFamily='"Anuphan",sans-serif'>
                   วันที่ขายดีสุด

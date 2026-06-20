@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { displayPrice, satangToInput, inputToSatang, formatBahtInput } from '@/lib/money'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -167,22 +168,21 @@ function EditModal({ card, onClose, onSaved, onMarkedSold, onDeleted }: ModalPro
   const minQty = Math.max(1, soldCount)
 
   const [editName, setEditName] = useState<string>(card.name)
-  const [editPrice, setEditPrice] = useState<string>(Math.round(card.price / 100).toLocaleString('en-US'))
+  const [editPrice, setEditPrice] = useState<string>(satangToInput(card.price))
   const [editQty, setEditQty] = useState<number>(card.quantity)
   const [saving, setSaving] = useState(false)
   const [marking, setMarking] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   function handlePriceChange(val: string) {
-    const digits = val.replace(/[^0-9]/g, '')
-    setEditPrice(digits ? parseInt(digits, 10).toLocaleString('en-US') : '')
+    setEditPrice(formatBahtInput(val))
   }
 
   async function handleSave() {
     setSaving(true)
-    const res = await fetch(`/api/cards/${card.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: editName, price: parseInt(editPrice.replace(/,/g, '') || '0', 10) * 100, quantity: editQty }) })
+    const res = await fetch(`/api/cards/${card.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: editName, price: inputToSatang(editPrice), quantity: editQty }) })
     setSaving(false)
-    if (res.ok) onSaved({ ...card, name: editName, price: parseInt(editPrice.replace(/,/g, '') || '0', 10) * 100, quantity: editQty })
+    if (res.ok) onSaved({ ...card, name: editName, price: inputToSatang(editPrice), quantity: editQty })
   }
 
   async function handleMarkSold() {
@@ -321,7 +321,7 @@ function TableRow({ card, isLast, rowBg, rowHoverBg, onOpen }: { card: CardRow; 
         </div>
       </td>
       <td style={{ ...tdBase, ...ANU }}>{CONDITION_LABEL[card.condition] ?? card.condition}</td>
-      <td style={{ ...tdBase, textAlign: 'right' }}><span style={{ ...KAN, fontWeight: 700, fontSize: 15, color: C.ink }}>฿{(card.price / 100).toLocaleString()}</span></td>
+      <td style={{ ...tdBase, textAlign: 'right' }}><span style={{ ...KAN, fontWeight: 700, fontSize: 15, color: C.ink }}>{displayPrice(card.price)}</span></td>
       <td style={{ ...tdBase, textAlign: 'center', ...ANU }}>{card.status === 'sold' ? '—' : card.quantity}</td>
       <td style={{ ...tdBase, textAlign: 'center' }}><StatusPill status={card.status}/></td>
       <td style={{ ...tdBase, textAlign: 'right' }}><ManageBtn status={card.status} onClick={onOpen}/></td>
@@ -378,10 +378,10 @@ export default function ListingsView({ shopId, initialCards }: { shopId: string;
   }
 
   const statCards = [
-    { label: 'ยอดขายเดือนนี้', value: `฿${(salesSum / 100).toLocaleString()}`, bg: C.red,      icon: <IconWallet size={18} color="#fff"/> },
-    { label: 'ออเดอร์รอส่ง',    value: String(reservedCount),                    bg: '#2a75bb',  icon: <IconReceipt size={18} color="#fff"/> },
-    { label: 'กำลังขาย',        value: String(availableCount),                   bg: C.green,    icon: <IconTag size={18} color="#fff"/> },
-    { label: 'มูลค่าสต็อก',     value: `฿${(stockValue / 100).toLocaleString()}`, bg: '#eaa600', icon: <svg viewBox="0 0 24 24" width={18} height={18} fill="#ffcb05" stroke="#ffcb05" strokeWidth={1}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
+    { label: 'ยอดขายเดือนนี้', value: displayPrice(salesSum),   bg: C.red,      icon: <IconWallet size={18} color="#fff"/> },
+    { label: 'ออเดอร์รอส่ง',    value: String(reservedCount),   bg: '#2a75bb',  icon: <IconReceipt size={18} color="#fff"/> },
+    { label: 'กำลังขาย',        value: String(availableCount),  bg: C.green,    icon: <IconTag size={18} color="#fff"/> },
+    { label: 'มูลค่าสต็อก',     value: displayPrice(stockValue), bg: '#eaa600', icon: <svg viewBox="0 0 24 24" width={18} height={18} fill="#ffcb05" stroke="#ffcb05" strokeWidth={1}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
   ]
 
   return (

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { SalesChart } from '@/components/ui/SalesChart'
 import { getAuthenticatedShop } from '@/lib/getShop'
+import { displayPrice } from '@/lib/money'
 
 const KAN: React.CSSProperties = { fontFamily: '"Kanit", sans-serif' }
 const ANU: React.CSSProperties = { fontFamily: '"Anuphan", sans-serif' }
@@ -100,7 +101,6 @@ function fmtDate(iso: string) {
   const t = d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
   return same ? `วันนี้ ${t}` : d.toLocaleDateString('th-TH', { month: 'short', day: 'numeric' }) + ` ${t}`
 }
-function fmtB(satang: number) { return `฿${(satang / 100).toLocaleString('th-TH')}` }
 
 // ── Page ──────────────────────────────────────────────────────
 export default async function DashboardPage() {
@@ -192,10 +192,10 @@ export default async function DashboardPage() {
 
       {/* ── Stats row ─────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
-        <StatCard label="ยอดขายเดือนนี้"  value={fmtB(monthSales)}          color="#ee1c25"/>
+        <StatCard label="ยอดขายเดือนนี้"  value={displayPrice(monthSales)}          color="#ee1c25"/>
         <StatCard label="ออเดอร์รอส่ง"    value={pendingShipCount ?? 0}     color="#2a75bb"/>
         <StatCard label="กำลังขาย"         value={availCount ?? 0}           color="#2e9e4f"/>
-        <StatCard label="มูลค่าสต็อก"     value={fmtB(stockValue)}          color="#d48806"/>
+        <StatCard label="มูลค่าสต็อก"     value={displayPrice(stockValue)}          color="#d48806"/>
       </div>
 
       {/* ── Chart + Top cards ─────────────────────────────── */}
@@ -210,7 +210,7 @@ export default async function DashboardPage() {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '14px 0 16px' }}>
-            <span style={{ ...KAN, fontWeight: 700, fontSize: 32, color: '#1c1b24' }}>{fmtB(chartTotal)}</span>
+            <span style={{ ...KAN, fontWeight: 700, fontSize: 32, color: '#1c1b24' }}>{displayPrice(chartTotal)}</span>
             {chartTotal > 0 && (
               <span style={{ background: '#e8f9ef', color: '#2e9e4f', ...KAN, fontWeight: 600, fontSize: 13, padding: '3px 9px', borderRadius: 999 }}>
                 + เดือนนี้
@@ -243,7 +243,7 @@ export default async function DashboardPage() {
                 <div style={{ ...KAN, fontWeight: 600, fontSize: 13.5, color: '#1c1b24', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{card.name}</div>
                 <div style={{ fontSize: 12, color: '#6b6a76', marginTop: 1, ...ANU }}>{COND_LABEL[card.condition] ?? card.condition}</div>
               </div>
-              <span style={{ ...KAN, fontWeight: 700, fontSize: 13.5, color: '#1c1b24', flexShrink: 0 }}>{fmtB(card.price)}</span>
+              <span style={{ ...KAN, fontWeight: 700, fontSize: 13.5, color: '#1c1b24', flexShrink: 0 }}>{displayPrice(card.price)}</span>
             </div>
           ))}
         </div>
@@ -280,7 +280,7 @@ export default async function DashboardPage() {
                   </Td>
                   <Td muted>{order.buyer_email ?? '—'}</Td>
                   <Td>
-                    <span style={{ ...KAN, fontWeight: 700, fontSize: 14 }}>{fmtB(order.total_amount)}</span>
+                    <span style={{ ...KAN, fontWeight: 700, fontSize: 14 }}>{displayPrice(order.total_amount)}</span>
                   </Td>
                   <Td>
                     <span style={{ background: '#fff1ef', color: '#ee1c25', ...KAN, fontWeight: 600, fontSize: 12, padding: '3px 10px', borderRadius: 999 }}>รอส่ง</span>
@@ -325,7 +325,7 @@ export default async function DashboardPage() {
                   </Td>
                   <Td muted>{COND_LABEL[card.condition] ?? card.condition}</Td>
                   <Td>
-                    <span style={{ ...KAN, fontWeight: 700 }}>{fmtB(card.price)}</span>
+                    <span style={{ ...KAN, fontWeight: 700 }}>{displayPrice(card.price)}</span>
                   </Td>
                   <Td muted>{card.quantity ?? 1}/1</Td>
                   <Td>
