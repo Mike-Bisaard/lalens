@@ -100,7 +100,7 @@ function fmtDate(iso: string) {
   const t = d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
   return same ? `วันนี้ ${t}` : d.toLocaleDateString('th-TH', { month: 'short', day: 'numeric' }) + ` ${t}`
 }
-function fmtB(n: number) { return `฿${n.toLocaleString('th-TH')}` }
+function fmtB(satang: number) { return `฿${(satang / 100).toLocaleString('th-TH')}` }
 
 // ── Page ──────────────────────────────────────────────────────
 export default async function DashboardPage() {
