@@ -167,17 +167,22 @@ function EditModal({ card, onClose, onSaved, onMarkedSold, onDeleted }: ModalPro
   const minQty = Math.max(1, soldCount)
 
   const [editName, setEditName] = useState<string>(card.name)
-  const [editPrice, setEditPrice] = useState<string>((card.price / 100).toFixed(2))
+  const [editPrice, setEditPrice] = useState<string>(Math.round(card.price / 100).toLocaleString('en-US'))
   const [editQty, setEditQty] = useState<number>(card.quantity)
   const [saving, setSaving] = useState(false)
   const [marking, setMarking] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
+  function handlePriceChange(val: string) {
+    const digits = val.replace(/[^0-9]/g, '')
+    setEditPrice(digits ? parseInt(digits, 10).toLocaleString('en-US') : '')
+  }
+
   async function handleSave() {
     setSaving(true)
-    const res = await fetch(`/api/cards/${card.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: editName, price: Math.round(parseFloat(editPrice) * 100), quantity: editQty }) })
+    const res = await fetch(`/api/cards/${card.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: editName, price: parseInt(editPrice.replace(/,/g, '') || '0', 10) * 100, quantity: editQty }) })
     setSaving(false)
-    if (res.ok) onSaved({ ...card, name: editName, price: Math.round(parseFloat(editPrice) * 100), quantity: editQty })
+    if (res.ok) onSaved({ ...card, name: editName, price: parseInt(editPrice.replace(/,/g, '') || '0', 10) * 100, quantity: editQty })
   }
 
   async function handleMarkSold() {
@@ -248,7 +253,7 @@ function EditModal({ card, onClose, onSaved, onMarkedSold, onDeleted }: ModalPro
             <label style={{ ...KAN, fontWeight: 500, fontSize: 13, color: C.ink, display: 'block', marginBottom: 7 }}>ราคา (บาท)</label>
             <div style={{ position: 'relative' }}>
               <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', ...KAN, fontWeight: 600, color: C.muted, pointerEvents: 'none', fontSize: 15 }}>฿</span>
-              <input type="number" min="0" step="0.01" value={editPrice} onChange={e => setEditPrice(e.target.value)} disabled={locked}
+              <input type="text" inputMode="numeric" value={editPrice} onChange={e => handlePriceChange(e.target.value)} disabled={locked}
                 style={{ width: '100%', border: '1.5px solid #e0dde3', borderRadius: 11, padding: '12px 14px 12px 28px', fontSize: 15, ...KAN, fontWeight: 600, background: locked ? '#f3f2f4' : '#faf9f7', color: locked ? C.muted : C.ink, outline: 'none', boxSizing: 'border-box' }}
                 onFocus={e => { if (!locked) { e.target.style.borderColor = C.red; e.target.style.boxShadow = '0 0 0 3px rgba(238,28,37,.1)' } }}
                 onBlur={e => { e.target.style.borderColor = '#e0dde3'; e.target.style.boxShadow = 'none' }}

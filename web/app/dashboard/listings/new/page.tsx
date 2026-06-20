@@ -188,9 +188,14 @@ export default function NewListingPage() {
                 />
                 <input
                   placeholder="ราคา (บาท)"
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={card.price}
-                  onChange={e => setCards(cs => cs.map((c, idx) => idx === i ? { ...c, price: e.target.value } : c))}
+                  onChange={e => {
+                    const digits = e.target.value.replace(/[^0-9]/g, '')
+                    const formatted = digits ? parseInt(digits, 10).toLocaleString('en-US') : ''
+                    setCards(cs => cs.map((c, idx) => idx === i ? { ...c, price: formatted } : c))
+                  }}
                   className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500"
                 />
                 <select

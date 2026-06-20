@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
       if (uploadErr) return null
 
       const { data: { publicUrl } } = storage.from(BUCKET).getPublicUrl(path)
-      const priceSatang = Math.round(parseFloat(card.price || '0') * 100)
+      const priceSatang = parseInt((card.price || '0').replace(/,/g, ''), 10) * 100
 
       return {
         batch_id:    batchId,
