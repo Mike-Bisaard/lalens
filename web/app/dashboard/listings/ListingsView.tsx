@@ -195,7 +195,7 @@ function EditModal({ card, onClose, onSaved, onMarkedSold, onDeleted }: ModalPro
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(20,18,22,.45)', zIndex: 60, display: 'grid', placeItems: 'center' }} onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(20,18,22,.45)', zIndex: 60, display: 'grid', placeItems: 'center' }}>
       <div style={{ maxWidth: 440, width: 'calc(100% - 32px)', background: C.paper, borderRadius: 20, boxShadow: '0 24px 60px -18px rgba(0,0,0,.4)', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
         {/* Head */}
         <div style={{ padding: '20px 22px', borderBottom: `1.5px solid ${C.line}`, display: 'flex', alignItems: 'center', gap: 13 }}>

@@ -174,7 +174,6 @@ export default function PostActions({ batchId, shopSlug, isActive, appUrl }: Pos
             justifyContent: 'center',
             padding: 24,
           }}
-          onClick={e => { if (e.target === e.currentTarget) setDialog(null) }}
         >
           <div style={{
             background: '#fff',

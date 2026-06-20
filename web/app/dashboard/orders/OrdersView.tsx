@@ -143,8 +143,8 @@ function ShipModal({ order, onClose, onSuccess }: { order: Order; onClose: () =>
   }
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, background: C.paper, borderRadius: 20, overflow: 'hidden', boxShadow: '0 24px 60px -12px rgba(0,0,0,.28)' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <div style={{ width: '100%', maxWidth: 440, background: C.paper, borderRadius: 20, overflow: 'hidden', boxShadow: '0 24px 60px -12px rgba(0,0,0,.28)' }}>
         <div style={{ padding: '18px 22px', borderBottom: `1.5px solid ${C.line}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontFamily: 'Kanit,sans-serif', fontWeight: 700, fontSize: 17 }}>ใส่เลขพัสดุ <span style={{ color: C.muted, fontWeight: 500, fontSize: 14 }}>#{order.id.slice(-8).toUpperCase()}</span></span>
           <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: '50%', border: `1.5px solid ${C.line}`, background: C.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: C.muted }}><IconX s={16}/></button>
@@ -202,8 +202,8 @@ function DetailModal({ order, onClose, onOpenShip, onComplete }: { order: Order;
   }
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, background: C.paper, borderRadius: 20, maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 60px -12px rgba(0,0,0,.28)' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <div style={{ width: '100%', maxWidth: 440, background: C.paper, borderRadius: 20, maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 60px -12px rgba(0,0,0,.28)' }}>
         {/* Head */}
         <div style={{ padding: '20px 22px', borderBottom: `1.5px solid ${C.line}`, display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, flexWrap: 'wrap' }}>
           <span style={{ fontFamily: 'Kanit,sans-serif', fontWeight: 700, fontSize: 17 }}>ออเดอร์ #{idSuffix}</span>
