@@ -556,7 +556,7 @@ export default function NewListingView({ shopSlug }: { shopSlug: string }) {
                 return (
                   <div key={card.index} style={{ background: C.paper, border: `1.5px solid ${C.line}`, borderRadius: 16, overflow: 'hidden' }}>
                     {/* Thumbnail */}
-                    <div style={{ height: 160, background: '#f0ede8', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div onClick={() => card.imageDataUrl && setPreviewCard({ dataUrl: card.imageDataUrl, index: activeIdx })} style={{ height: 160, background: '#f0ede8', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-in' }}>
                       {card.imageDataUrl && (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={card.imageDataUrl} alt={`card-${activeIdx}`} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }} />
